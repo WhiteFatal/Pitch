@@ -1,0 +1,61 @@
+/* SIDEBAR */
+.sidebar {
+  width:72px;
+  background:#0a1b0d;
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:24px 0;
+  position:fixed;
+  top:0;left:0;
+  bottom:0;
+  z-index:100;
+  gap:8px
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:2px;margin-bottom:24px}
+.nav-icon{
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--muted);
+  font-size: 20px;
+  border: 1px solid transparent;
+}
+.nav-icon:hover {
+  background:var(--surface2);color:var(--text);
+}
+.nav-icon.active {
+  background:var(--accent-dim);
+  color:var(--accent);
+  border-color:rgba(200,242,90,0.25);
+}
+.nav-icon.gold-icon {
+  color:var(--gold);
+}
+.sidebar-bottom {
+  margin-top:auto;
+}
+.avatar-sm {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#4d9fff,#a855f7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  border:2px solid var(--border);
+}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+}

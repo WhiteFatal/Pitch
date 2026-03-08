@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PitchUp</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+</style>
+
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">PITCH</div>
+  <div class="nav-icon active" id="nav-games" onclick="showScreen('games')">&#9917;</div>
+  <div class="nav-icon gold-icon" id="nav-profile" onclick="showScreen('profile')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+  </div>
+  <div class="nav-icon" id="nav-players" onclick="showScreen('players')">&#127942;</div>
+  <div class="nav-icon" id="nav-notifs" style="position:relative" onclick="showScreen('notifs')">&#128276;<div class="notif-dot"></div></div>
+  <div class="sidebar-bottom"><div class="avatar-sm">AK</div></div>
+</aside>
+
+<div class="main">
+
+  <!-- ═══════════════ GAMES SCREEN ═══════════════ -->
+  <div class="content screen active" id="screen-games">
+    <div class="topbar">
+      <div class="mobile-logo">PITCH</div>
+      <div class="topbar-greeting">Good morning, <strong>Alex K.</strong> &#128075;</div>
+      <div class="mobile-nav">
+        <div class="mobile-nav-icon active" id="mnav-games" onclick="showScreen('games')">&#9917;</div>
+        <div class="mobile-nav-icon gold-icon" id="mnav-profile" onclick="showScreen('profile')"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>
+        <div class="mobile-nav-icon" id="mnav-players" onclick="showScreen('players')">&#127942;</div>
+        <div class="mobile-nav-icon" id="mnav-notifs" style="position:relative" onclick="showScreen('notifs')">&#128276;<div class="notif-dot"></div></div>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <div class="user-btn" onclick="toggleUserMenu()">
+          <div class="user-avatar">AK</div>
+          <span class="user-name">Alex K.</span>
+          <span class="user-chevron">&#9660;</span>
+        </div>
+        <div class="user-dropdown">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">AK</div>
+            <div>
+              <div class="dropdown-name">Alex Kowalski</div>
+              <div class="dropdown-email">alex [at] pitchup.ge</div>
+            </div>
+          </div>
+          <div class="dropdown-items">
+            <div class="dropdown-item"><span class="dropdown-icon">&#9881;&#65039;</span> Settings</div>
+            <div class="dropdown-item danger"><span class="dropdown-icon">&#8617;</span> Log Out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">TODAY'S GAMES</div>
+        <div class="page-subtitle">Wednesday, 02 March &middot; Tbilisi Public Pitch</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-admin" onclick="openAdminModal()">&#9881; Create Reservation</button>
+        <button class="btn btn-primary" onclick="openGameModal()">+ Reserve Spot</button>
+      </div>
+    </div>
+
+    <div class="month-divider"><div class="month-divider-line"></div><div class="month-divider-center"><button class="month-divider-btn" onclick="changeMonth(-1)" title="Previous month">&#171;&#171;</button><div class="month-divider-label" id="month-label">MARCH</div><button class="month-divider-btn" onclick="changeMonth(1)" title="Next month">&#187;&#187;</button></div><div class="month-divider-line"></div></div>
+    <div class="date-row">
+      <div class="date-chip"><div class="dow">Sun</div><div class="dom">01</div></div>
+      <div class="date-chip active"><div class="dow">Mon</div><div class="dom">02</div></div>
+      <div class="date-chip"><div class="dow">Tue</div><div class="dom">03</div></div>
+      <div class="date-chip"><div class="dow">Wed</div><div class="dom">04</div></div>
+      <div class="date-chip"><div class="dow">Thu</div><div class="dom">05</div></div>
+      <div class="date-chip"><div class="dow">Fri</div><div class="dom">06</div></div>
+      <div class="date-chip"><div class="dow">Sat</div><div class="dom">07</div></div>
+      <div class="date-chip"><div class="dow">Sun</div><div class="dom">08</div></div>
+      <div class="date-chip"><div class="dow">Mon</div><div class="dom">09</div></div>
+      <div class="date-chip"><div class="dow">Tue</div><div class="dom">10</div></div>
+      <div class="date-chip"><div class="dow">Wed</div><div class="dom">11</div></div>
+      <div class="date-chip"><div class="dow">Thu</div><div class="dom">12</div></div>
+      <div class="date-chip"><div class="dow">Fri</div><div class="dom">13</div></div>
+      <div class="date-chip"><div class="dow">Sat</div><div class="dom">14</div></div>
+      <div class="date-chip"><div class="dow">Sun</div><div class="dom">15</div></div>
+      <div class="date-chip"><div class="dow">Mon</div><div class="dom">16</div></div>
+      <div class="date-chip"><div class="dow">Tue</div><div class="dom">17</div></div>
+      <div class="date-chip"><div class="dow">Wed</div><div class="dom">18</div></div>
+      <div class="date-chip"><div class="dow">Thu</div><div class="dom">19</div></div>
+      <div class="date-chip"><div class="dow">Fri</div><div class="dom">20</div></div>
+      <div class="date-chip"><div class="dow">Sat</div><div class="dom">21</div></div>
+      <div class="date-chip"><div class="dow">Sun</div><div class="dom">22</div></div>
+      <div class="date-chip"><div class="dow">Mon</div><div class="dom">23</div></div>
+      <div class="date-chip"><div class="dow">Tue</div><div class="dom">24</div></div>
+      <div class="date-chip"><div class="dow">Wed</div><div class="dom">25</div></div>
+      <div class="date-chip"><div class="dow">Thu</div><div class="dom">26</div></div>
+      <div class="date-chip"><div class="dow">Fri</div><div class="dom">27</div></div>
+      <div class="date-chip"><div class="dow">Sat</div><div class="dom">28</div></div>
+      <div class="date-chip"><div class="dow">Sun</div><div class="dom">29</div></div>
+      <div class="date-chip"><div class="dow">Mon</div><div class="dom">30</div></div>
+      <div class="date-chip"><div class="dow">Tue</div><div class="dom">31</div></div>
+    </div>
+
+    <div class="section-label">Upcoming &middot; 4 Games &middot; 18 spots each (3 teams &times; 6 players)</div>
+
+    <div class="games">
+      <div class="game-card joined" onclick="openGameModal('06:00','11/18','Balanced')">
+        <div class="game-top"><div class="game-time">06:00</div><div class="game-badges"><span class="badge badge-joined">&#10003; Joined</span><span class="badge badge-open">Open</span></div></div>
+        <div class="game-meta"><span>&#9917; 6-a-side &middot; 3 teams</span><span>&#128205; Pitch A</span><span>&#9201; 60 min</span></div>
+        <div class="player-row">
+          <div class="avatars"><div class="avatar">AK</div><div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">MG</div><div class="avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">TL</div><div class="avatar" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">NR</div><div class="avatar more">+7</div></div>
+          <div class="spots-bar"><div class="spots-track"><div class="spots-fill" style="width:61%"></div></div><div class="spots-text">11 / 18 spots filled</div></div>
+        </div>
+      </div>
+      <div class="game-card" onclick="openGameModal('09:30','6/18','Unbalanced')">
+        <div class="game-top"><div class="game-time">09:30</div><div class="game-badges"><span class="badge badge-open">Open</span></div></div>
+        <div class="game-meta"><span>&#9917; 6-a-side &middot; 3 teams</span><span>&#128205; Pitch B</span><span>&#9201; 90 min</span></div>
+        <div class="player-row">
+          <div class="avatars"><div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">JK</div><div class="avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">RD</div><div class="avatar" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">SV</div><div class="avatar more">+3</div></div>
+          <div class="spots-bar"><div class="spots-track"><div class="spots-fill" style="width:33%"></div></div><div class="spots-text">6 / 18 spots filled</div></div>
+        </div>
+      </div>
+      <div class="game-card full" onclick="openGameModal('12:00','18/18','Balanced')">
+        <div class="game-top"><div class="game-time">12:00</div><div class="game-badges"><span class="badge badge-full">Full</span></div></div>
+        <div class="game-meta"><span>&#9917; 6-a-side &middot; 3 teams</span><span>&#128205; Pitch A</span><span>&#9201; 60 min</span></div>
+        <div class="player-row">
+          <div class="avatars"><div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">MM</div><div class="avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">PK</div><div class="avatar" style="background:linear-gradient(135deg,#6366f1,#ec4899)">LB</div><div class="avatar more">+15</div></div>
+          <div class="spots-bar"><div class="spots-track"><div class="spots-fill s-full" style="width:100%"></div></div><div class="spots-text">18 / 18 spots filled</div></div>
+        </div>
+      </div>
+      <div class="game-card cancelled" onclick="openGameModal('18:00','3/18','Cancelled')">
+        <div class="game-top"><div class="game-time">18:00</div><div class="game-badges"><span class="badge badge-cancelled">&#10005; Cancelled</span></div></div>
+        <div class="game-meta"><span>&#9917; 6-a-side &middot; 3 teams</span><span>&#128205; Pitch C</span><span>&#9201; 90 min</span></div>
+        <div class="player-row">
+          <div class="avatars"><div class="avatar" style="background:linear-gradient(135deg,#6366f1,#ec4899)">AB</div><div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">CE</div><div class="avatar" style="background:linear-gradient(135deg,#10b981,#f59e0b)">DV</div></div>
+          <div class="spots-bar"><div class="spots-track"><div class="spots-fill s-red" style="width:17%"></div></div><div class="spots-text">3 / 18 spots filled</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PROFILE SCREEN ═══════════════ -->
+  <div class="content screen" id="screen-profile">
+    <div class="topbar">
+      <div class="mobile-logo">PITCH</div>
+      <div class="topbar-greeting">Good morning, <strong>Alex K.</strong> &#128075;</div>
+      <div class="mobile-nav">
+        <div class="mobile-nav-icon" id="mnav-games-profile" onclick="showScreen('games')">&#9917;</div>
+        <div class="mobile-nav-icon gold-icon active" id="mnav-profile-profile" onclick="showScreen('profile')"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>
+        <div class="mobile-nav-icon" id="mnav-players-profile" onclick="showScreen('players')">&#127942;</div>
+        <div class="mobile-nav-icon" id="mnav-notifs-profile" style="position:relative" onclick="showScreen('notifs')">&#128276;<div class="notif-dot"></div></div>
+      </div>
+      <div class="user-menu" id="userMenu-profile">
+        <div class="user-btn" onclick="toggleUserMenu('profile')">
+          <div class="user-avatar">AK</div>
+          <span class="user-name">Alex K.</span>
+          <span class="user-chevron">&#9660;</span>
+        </div>
+        <div class="user-dropdown">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">AK</div>
+            <div>
+              <div class="dropdown-name">Alex Kowalski</div>
+              <div class="dropdown-email">alex [at] pitchup.ge</div>
+            </div>
+          </div>
+          <div class="dropdown-items">
+            <div class="dropdown-item"><span class="dropdown-icon">&#9881;&#65039;</span> Settings</div>
+            <div class="dropdown-item danger"><span class="dropdown-icon">&#8617;</span> Log Out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-header" style="margin-bottom:28px">
+      <div>
+        <div class="page-title">MY PROFILE</div>
+        <div class="page-subtitle">Your stats &amp; account details</div>
+      </div>
+    </div>
+
+    <div class="profile-hero">
+      <div class="profile-avatar-lg">AK</div>
+      <div>
+        <div class="profile-name">Alex Kowalski</div>
+        <div class="profile-email">alex [at] pitchup.ge</div>
+      </div>
+    </div>
+
+    <div class="profile-stats-grid">
+      <div class="profile-stat-card">
+        <div class="profile-stat-val">19</div>
+        <div class="profile-stat-label">Games Played</div>
+        <div class="profile-stat-sub">Since Jan 2026</div>
+      </div>
+      <div class="profile-stat-card">
+        <div class="profile-stat-val" style="color:var(--gold)">&#9733; 74</div>
+        <div class="profile-stat-label">Stars Received</div>
+        <div class="profile-stat-sub">Avg 3.9 per game</div>
+      </div>
+    </div>
+
+    <div class="profile-form">
+      <div class="profile-form-title">Edit Profile</div>
+      <div class="profile-field">
+        <label class="profile-label">Full Name</label>
+        <input class="profile-input" type="text" value="Alex Kowalski">
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">Email</label>
+        <input class="profile-input" type="email" value="alex@pitchup.ge">
+      </div>
+      <button class="btn btn-primary">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TOP PLAYERS SCREEN ═══════════════ -->
+  <div class="content screen" id="screen-players">
+    <div class="topbar">
+      <div class="mobile-logo">PITCH</div>
+      <div class="topbar-greeting">Good morning, <strong>Alex K.</strong> &#128075;</div>
+      <div class="mobile-nav">
+        <div class="mobile-nav-icon" id="mnav-games-players" onclick="showScreen('games')">&#9917;</div>
+        <div class="mobile-nav-icon gold-icon" id="mnav-profile-players" onclick="showScreen('profile')"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>
+        <div class="mobile-nav-icon active" id="mnav-players-players" onclick="showScreen('players')">&#127942;</div>
+        <div class="mobile-nav-icon" id="mnav-notifs-players" style="position:relative" onclick="showScreen('notifs')">&#128276;<div class="notif-dot"></div></div>
+      </div>
+      <div class="user-menu" id="userMenu-players">
+        <div class="user-btn" onclick="toggleUserMenu('players')">
+          <div class="user-avatar">AK</div>
+          <span class="user-name">Alex K.</span>
+          <span class="user-chevron">&#9660;</span>
+        </div>
+        <div class="user-dropdown">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">AK</div>
+            <div>
+              <div class="dropdown-name">Alex Kowalski</div>
+              <div class="dropdown-email">alex [at] pitchup.ge</div>
+            </div>
+          </div>
+          <div class="dropdown-items">
+            <div class="dropdown-item"><span class="dropdown-icon">&#9881;&#65039;</span> Settings</div>
+            <div class="dropdown-item danger"><span class="dropdown-icon">&#8617;</span> Log Out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-header" style="margin-bottom:28px">
+      <div>
+        <div class="page-title">TOP PLAYERS</div>
+        <div class="page-subtitle">Ranked by stars &rarr; then games played</div>
+      </div>
+    </div>
+
+    <div class="players-table">
+      <div class="players-header" style="grid-template-columns:48px 1fr 100px 80px 90px">
+        <div>#</div>
+        <div>Player</div>
+        <div>Stars</div>
+        <div>Games</div>
+        <div>Avg/Game</div>
+      </div>
+      <div id="players-body"></div>
+      <div class="players-pagination">
+        <span id="pagination-info">Showing 1–50 of 120 players</span>
+        <div class="pagination-btns">
+          <button class="page-btn active" onclick="goPage(1)">1</button>
+          <button class="page-btn" onclick="goPage(2)">2</button>
+          <button class="page-btn" onclick="goPage(3)">3</button>
+          <button class="page-btn" onclick="goPage(-1)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ NOTIFICATIONS SCREEN ═══════════════ -->
+  <div class="content screen" id="screen-notifs">
+    <div class="topbar">
+      <div class="mobile-logo">PITCH</div>
+      <div class="topbar-greeting">Good morning, <strong>Alex K.</strong> &#128075;</div>
+      <div class="mobile-nav">
+        <div class="mobile-nav-icon" id="mnav-games-notifs" onclick="showScreen('games')">&#9917;</div>
+        <div class="mobile-nav-icon gold-icon" id="mnav-profile-notifs" onclick="showScreen('profile')"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>
+        <div class="mobile-nav-icon" id="mnav-players-notifs" onclick="showScreen('players')">&#127942;</div>
+        <div class="mobile-nav-icon active" id="mnav-notifs-notifs" style="position:relative" onclick="showScreen('notifs')">&#128276;<div class="notif-dot"></div></div>
+      </div>
+      <div class="user-menu" id="userMenu-notifs">
+        <div class="user-btn" onclick="toggleUserMenu('notifs')">
+          <div class="user-avatar">AK</div>
+          <span class="user-name">Alex K.</span>
+          <span class="user-chevron">&#9660;</span>
+        </div>
+        <div class="user-dropdown">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">AK</div>
+            <div>
+              <div class="dropdown-name">Alex Kowalski</div>
+              <div class="dropdown-email">alex [at] pitchup.ge</div>
+            </div>
+          </div>
+          <div class="dropdown-items">
+            <div class="dropdown-item"><span class="dropdown-icon">&#9881;&#65039;</span> Settings</div>
+            <div class="dropdown-item danger"><span class="dropdown-icon">&#8617;</span> Log Out</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page-header" style="margin-bottom:28px">
+      <div>
+        <div class="page-title">NOTIFICATIONS</div>
+        <div class="page-subtitle">Your recent alerts &amp; preferences</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:14px">Recent</div>
+    <div class="notif-screen-list">
+      <div class="notif-screen-item unread">
+        <div class="notif-icon-wrap" style="background:rgba(200,242,90,0.1)">&#9917;</div>
+        <div class="notif-body">
+          <div class="notif-title">New game created &mdash; 06:00 on 03 March</div>
+          <div class="notif-desc">A new 6-a-side game was scheduled on Pitch A. 18 spots available.</div>
+          <div class="notif-ts">2 minutes ago</div>
+        </div>
+        <div class="notif-unread-dot"></div>
+      </div>
+
+      <div class="notif-screen-item">
+        <div class="notif-icon-wrap" style="background:rgba(74,222,128,0.1)">&#128101;</div>
+        <div class="notif-body">
+          <div class="notif-title">12:00 game is now full</div>
+          <div class="notif-desc">All 18 spots on Pitch A have been reserved.</div>
+          <div class="notif-ts">Yesterday, 11:45</div>
+        </div>
+      </div>
+      <div class="notif-screen-item">
+        <div class="notif-icon-wrap" style="background:rgba(251,146,60,0.1)">&#128683;</div>
+        <div class="notif-body">
+          <div class="notif-title">18:00 game was cancelled</div>
+          <div class="notif-desc">The Pitch C game on 02 March has been cancelled by the admin.</div>
+          <div class="notif-ts">Yesterday, 16:20</div>
+        </div>
+      </div>
+      <div class="notif-screen-item">
+        <div class="notif-icon-wrap" style="background:rgba(255,77,77,0.1)">&#128683;</div>
+        <div class="notif-body">
+          <div class="notif-title">Tom L. withdrew from your game</div>
+          <div class="notif-desc">1 spot opened up in the 06:00 game &mdash; Team A now has a free slot.</div>
+          <div class="notif-ts">2 days ago</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notif-settings-card">
+      <div class="notif-settings-title">Notification Preferences</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">New game created</div>
+          <div class="toggle-desc">Alert when admin schedules a new game slot</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked onchange="saveToggle(this,'new_game')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Game cancelled</div>
+          <div class="toggle-desc">Alert when a game you joined gets cancelled</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked onchange="saveToggle(this,'cancelled')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Player withdraws</div>
+          <div class="toggle-desc">Alert when someone leaves a game you're in</div>
+        </div>
+        <label class="toggle"><input type="checkbox" onchange="saveToggle(this,'withdraw')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-label">Game is full</div>
+          <div class="toggle-desc">Alert when all spots in a game are taken</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked onchange="saveToggle(this,'full')"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL (games screen only) -->
+  <aside class="panel right-panel" id="right-panel">
+    <div class="panel-card">
+      <div class="panel-card-title">&#127967; Pitch Map</div>
+      <div class="pitch">
+        <div class="pitch-line"></div><div class="pitch-goal left"></div><div class="pitch-goal right"></div>
+        <div class="pitch-center"></div><div class="pitch-label">Pitch A &middot; 6-a-side</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:14px;font-size:12px;color:var(--muted)">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:var(--lblue);border-radius:50%;display:inline-block"></span>Open</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block"></span>Full</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block"></span>Cancelled</span>
+      </div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-card-title">&#127942; Top Players</div>
+      <div class="rank-list">
+        <div class="rank-item"><div class="rank-num gold">1</div><div class="rank-avatar" style="background:linear-gradient(135deg,#f5c518,#ef4444)">MG</div><div class="rank-info"><div class="rank-name">Marcus Green</div><div class="rank-stat"><span style="color:var(--gold);font-size:14px">&#9733;</span> <strong style="color:var(--text)">210</strong> &middot; 42 games &middot; <span style="color:var(--gold)">5.0&#9733;/g</span></div></div></div>
+        <div class="rank-item"><div class="rank-num silver">2</div><div class="rank-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)">TL</div><div class="rank-info"><div class="rank-name">Tom Larson</div><div class="rank-stat"><span style="color:var(--gold);font-size:14px">&#9733;</span> <strong style="color:var(--text)">183</strong> &middot; 38 games &middot; <span style="color:var(--gold)">4.8&#9733;/g</span></div></div></div>
+        <div class="rank-item"><div class="rank-num bronze">3</div><div class="rank-avatar" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">NR</div><div class="rank-info"><div class="rank-name">Noa Rosen</div><div class="rank-stat"><span style="color:var(--gold);font-size:14px">&#9733;</span> <strong style="color:var(--text)">161</strong> &middot; 35 games &middot; <span style="color:var(--gold)">4.6&#9733;/g</span></div></div></div>
+        <div class="rank-item" style="background:var(--accent-dim);border-radius:var(--rs)"><div class="rank-num" style="color:var(--accent)">7</div><div class="rank-avatar" style="background:linear-gradient(135deg,#4d9fff,#a855f7)">AK</div><div class="rank-info"><div class="rank-name" style="color:var(--accent)">You</div><div class="rank-stat"><span style="color:var(--gold);font-size:14px">&#9733;</span> <strong style="color:var(--text)">74</strong> &middot; 19 games &middot; <span style="color:var(--gold)">3.9&#9733;/g</span></div></div></div>
+      </div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-card-title">&#128276; Notifications</div>
+      <div class="notif-list-panel">
+        <div class="notif-item" style="border-left-color:var(--accent)"><div>&#9917; New game created &mdash; <strong>06:00</strong> on 03 March</div><div class="notif-time">2 min ago</div></div>
+        <div class="notif-item" style="border-left-color:var(--green)"><div>&#128101; 12:00 game is now full &mdash; all 18 spots taken</div><div class="notif-time">Yesterday</div></div>
+        <div class="notif-item" style="border-left-color:var(--red);opacity:.75"><div>&#128683; 18:00 game was cancelled by admin</div><div class="notif-time">Yesterday</div></div>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- GAME MODAL -->
+<div class="modal-overlay" id="gameModal" onclick="handleOverlayClick(event,'gameModal')">
+  <div class="modal-box" style="width:520px">
+    <div class="modal-close" onclick="closeModal('gameModal')">&#10005;</div>
+    <div class="modal-title" id="gm-title">06:00 Game</div>
+    <div class="modal-sub">Pitch A &middot; 6-a-side &middot; 3 teams of 6 &middot; Today</div>
+    <div class="modal-stats">
+      <div class="modal-stat"><div class="modal-stat-label">Spots</div><div class="modal-stat-val" id="gm-spots">11 / 18</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Format</div><div class="modal-stat-val">6-a-side</div></div>
+      <div class="modal-stat"><div class="modal-stat-label">Balance</div><div class="modal-stat-val" id="gm-balance" style="color:var(--accent)">Balanced &#10003;</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">AI Team Split &middot; 3 &times; 6</div>
+    <div class="team-split">
+      <div class="team-box ta"><div class="team-label ta">Team A</div><div class="team-player"><div class="dot dot-a"></div>Marcus G.</div><div class="team-player"><div class="dot dot-a"></div>Tom L.</div><div class="team-player"><div class="dot dot-a"></div>You (AK)</div><div class="team-player"><div class="dot dot-a"></div>JK</div><div class="team-player"><div class="dot dot-a"></div>RD</div><div class="team-player" style="opacity:.4"><div class="dot dot-a"></div>Open slot</div></div>
+      <div class="team-box tb"><div class="team-label tb">Team B</div><div class="team-player"><div class="dot dot-b"></div>Noa R.</div><div class="team-player"><div class="dot dot-b"></div>SV</div><div class="team-player"><div class="dot dot-b"></div>PK</div><div class="team-player"><div class="dot dot-b"></div>LB</div><div class="team-player" style="opacity:.4"><div class="dot dot-b"></div>Open slot</div><div class="team-player" style="opacity:.4"><div class="dot dot-b"></div>Open slot</div></div>
+      <div class="team-box tc"><div class="team-label tc">Team C</div><div class="team-player"><div class="dot dot-c"></div>GN</div><div class="team-player"><div class="dot dot-c"></div>MM</div><div class="team-player" style="opacity:.4"><div class="dot dot-c"></div>Open slot</div><div class="team-player" style="opacity:.4"><div class="dot dot-c"></div>Open slot</div><div class="team-player" style="opacity:.4"><div class="dot dot-c"></div>Open slot</div><div class="team-player" style="opacity:.4"><div class="dot dot-c"></div>Open slot</div></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px" onclick="closeModal('gameModal')">&#10003; Confirm Spot</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;padding:12px" onclick="closeModal('gameModal')">Leave Game</button>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-overlay" id="adminModal" onclick="handleOverlayClick(event,'adminModal')">
+  <div class="modal-box admin-modal-box">
+    <div class="modal-close" onclick="closeModal('adminModal')">&#10005;</div>
+    <div class="admin-badge">&#9881; Admin Only</div>
+    <div class="modal-title">Create Reservation</div>
+    <div class="modal-sub">Set up a new game slot for players to reserve</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Game Date</label>
+        <input type="date" class="form-input" id="f-date" value="2026-03-04" onchange="updateDayOfWeek()">
+        <span class="form-hint" id="f-day-of-week" style="color:var(--accent);font-weight:600">Wednesday</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Game Time</label>
+        <select class="form-select" id="f-time">
+          <option>00:00</option><option>00:30</option><option>01:00</option><option>01:30</option>
+          <option>02:00</option><option>02:30</option><option>03:00</option><option>03:30</option>
+          <option>04:00</option><option>04:30</option><option>05:00</option><option>05:30</option>
+          <option>06:00</option><option>06:30</option><option>07:00</option><option>07:30</option>
+          <option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
+          <option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option>
+          <option>12:00</option><option>12:30</option><option>13:00</option><option>13:30</option>
+          <option>14:00</option><option>14:30</option><option>15:00</option><option>15:30</option>
+          <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option>
+          <option>18:00</option><option>18:30</option><option>19:00</option><option>19:30</option>
+          <option>20:00</option><option>20:30</option><option>21:00</option><option selected>21:30</option>
+          <option>22:00</option><option>22:30</option><option>23:00</option><option>23:30</option>
+        </select>
+      </div>
+      <div class="form-divider"></div>
+      <div class="form-group">
+        <label class="form-label">Pitch</label>
+        <select class="form-select" id="f-pitch"><option value="A" selected>Pitch A</option><option value="B">Pitch B</option><option value="C">Pitch C</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <select class="form-select" id="f-duration"><option value="60" selected>60 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select>
+      </div>
+      <div class="form-divider"></div>
+      <div class="form-group">
+        <label class="form-label">Number of Teams</label>
+        <select class="form-select" id="f-teams" onchange="updateSummary()"><option value="2">2 teams</option><option value="3" selected>3 teams (default)</option><option value="4">4 teams</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Players per Team</label>
+        <select class="form-select" id="f-teamsize" onchange="updateSummary()"><option value="4">4 players</option><option value="5">5 players</option><option value="6" selected>6 players (default)</option><option value="7">7 players</option></select>
+      </div>
+      <div class="form-divider"></div>
+      <div class="form-group">
+        <label class="form-label">Price per Spot</label>
+        <div class="price-wrap"><input type="number" class="form-input" id="f-price" value="10" min="0" oninput="updateSummary()"><span class="price-currency">GEL</span></div>
+        <span class="form-hint">Per player reservation fee</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Capacity</label>
+        <div class="form-input" id="f-capacity" style="pointer-events:none;opacity:.7">18 players (3 x 6)</div>
+        <span class="form-hint">Auto-calculated</span>
+      </div>
+    </div>
+    <div class="admin-summary" id="f-summary">
+      &#128203; <div><strong>Game Summary:</strong> 3 teams of 6 &middot; 18 spots &middot; 10 GEL per spot &middot; Total pool: <strong>180 GEL</strong></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px" onclick="submitReservation()">&#10003; Create Game Slot</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;padding:12px" onclick="closeModal('adminModal')">Cancel</button>
+  </div>
+</div>
+
+<script>
+(function() {
+
+  // ── SCREEN NAVIGATION ──
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.querySelectorAll('.nav-icon').forEach(function(n) { n.classList.remove('active'); });
+    var screenMap = { games:'screen-games', profile:'screen-profile', players:'screen-players', notifs:'screen-notifs' };
+    var navMap    = { games:'nav-games', profile:'nav-profile', players:'nav-players', notifs:'nav-notifs' };
+    var s = document.getElementById(screenMap[name]);
+    if (s) s.classList.add('active');
+    var n = document.getElementById(navMap[name]);
+    if (n) n.classList.add('active');
+    // sync mobile nav
+    // sync all mobile nav icons across all screens
+    document.querySelectorAll('.mobile-nav-icon').forEach(function(i){ i.classList.remove('active'); });
+    document.querySelectorAll('.mobile-nav-icon[id*="mnav-' + name + '"]').forEach(function(i){ i.classList.add('active'); });
+
+    // Build players list on first visit
+    if (name === 'players' && !window._playersBuilt) buildPlayers();
+    // Close user dropdown
+    document.querySelectorAll('.user-menu').forEach(function(m){ m.classList.remove('open'); });
+  }
+  window.showScreen = showScreen;
+
+
+  // ── MONTH SWITCHER ──
+  var MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  var MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+  var MONTH_START_DAYS = [3,6,0,3,5,1,3,6,2,4,0,2]; // day of week for 1st of each month in 2026 (0=Sun)
+  var currentMonth = 2; // 0-indexed, March = 2
+
+  window.changeMonth = function(dir) {
+    currentMonth = (currentMonth + dir + 12) % 12;
+    var label = document.getElementById('month-label');
+    if (label) label.textContent = MONTHS[currentMonth];
+    rebuildDays();
+  };
+
+  function rebuildDays() {
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var numDays = MONTH_DAYS[currentMonth];
+    var startDay = MONTH_START_DAYS[currentMonth];
+    var rows = document.querySelectorAll('.date-row');
+    rows.forEach(function(row) {
+      var html = '';
+      for (var d = 1; d <= numDays; d++) {
+        var dow = days[(startDay + d - 1) % 7];
+        var dom = d < 10 ? '0' + d : '' + d;
+        html += '<div class="date-chip"><div class="dow">' + dow + '</div><div class="dom">' + dom + '</div></div>';
+      }
+      row.innerHTML = html;
+      // re-attach click handlers
+      row.querySelectorAll('.date-chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          row.querySelectorAll('.date-chip').forEach(function(c){ c.classList.remove('active'); });
+          chip.classList.add('active');
+        });
+      });
+    });
+  }
+
+  // ── USER MENU ──
+  window.toggleUserMenu = function(suffix) {
+    var id = suffix ? 'userMenu-' + suffix : 'userMenu';
+    document.querySelectorAll('.user-menu').forEach(function(m) {
+      if (m.id !== id) m.classList.remove('open');
+    });
+    document.getElementById(id).classList.toggle('open');
+  };
+  document.addEventListener('click', function(e) {
+    document.querySelectorAll('.user-menu').forEach(function(m) {
+      if (!m.contains(e.target)) m.classList.remove('open');
+    });
+  });
+
+  // ── DATE CHIPS ──
+  document.querySelectorAll('.date-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.date-chip').forEach(function(c) { c.classList.remove('active'); });
+      chip.classList.add('active');
+    });
+  });
+
+  // ── MODALS ──
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  window.closeModal = closeModal;
+  window.handleOverlayClick = function(e, id) { if (e.target === document.getElementById(id)) closeModal(id); };
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeModal('gameModal'); closeModal('adminModal'); }
+  });
+
+  window.openGameModal = function(time, spots, balance) {
+    if (time) {
+      document.getElementById('gm-title').textContent = time + ' Game';
+      document.getElementById('gm-spots').textContent = spots || '11 / 18';
+      var bal = document.getElementById('gm-balance');
+      if (balance === 'Balanced')   { bal.textContent = 'Balanced \u2713';  bal.style.color = 'var(--accent)'; }
+      else if (balance === 'Unbalanced') { bal.textContent = 'Unbalanced \u26a0'; bal.style.color = 'var(--red)'; }
+      else if (balance === 'Cancelled')  { bal.textContent = 'Cancelled \u2715'; bal.style.color = 'var(--red)'; }
+      else { bal.textContent = 'TBD'; bal.style.color = 'var(--muted)'; }
+    }
+    openModal('gameModal');
+  };
+
+  window.openAdminModal = function() { openModal('adminModal'); updateSummary(); };
+
+  window.updateSummary = function() {
+    var teams = parseInt(document.getElementById('f-teams').value) || 3;
+    var size  = parseInt(document.getElementById('f-teamsize').value) || 6;
+    var price = parseInt(document.getElementById('f-price').value) || 0;
+    var total = teams * size;
+    document.getElementById('f-capacity').textContent = total + ' players (' + teams + ' x ' + size + ')';
+    document.getElementById('f-summary').innerHTML = '&#128203; <div><strong>Game Summary:</strong> ' + teams + ' teams of ' + size + ' &middot; ' + total + ' spots &middot; ' + price + ' GEL per spot &middot; Total pool: <strong>' + (total * price) + ' GEL</strong></div>';
+  };
+
+  window.updateDayOfWeek = function() {
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var val = document.getElementById('f-date').value;
+    if (!val) return;
+    var p = val.split('-');
+    var d = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+    document.getElementById('f-day-of-week').textContent = days[d.getDay()];
+  };
+
+  window.submitReservation = function() { closeModal('adminModal'); };
+
+  // ── NOTIFICATION TOGGLES ──
+  window.saveToggle = function(el, key) {
+    // In a real app this would persist to backend
+  };
+
+  // ── TOP PLAYERS DATA + RENDERING ──
+  var GRADIENTS = [
+    'linear-gradient(135deg,#f5c518,#ef4444)',
+    'linear-gradient(135deg,#10b981,#3b82f6)',
+    'linear-gradient(135deg,#ec4899,#8b5cf6)',
+    'linear-gradient(135deg,#f59e0b,#ef4444)',
+    'linear-gradient(135deg,#4d9fff,#a855f7)',
+    'linear-gradient(135deg,#6366f1,#ec4899)',
+    'linear-gradient(135deg,#10b981,#f59e0b)',
+    'linear-gradient(135deg,#f59e0b,#10b981)',
+  ];
+
+  var NAMES = ['Marcus Green','Tom Larson','Noa Rosen','Jake Kim','Ryan Davies','Sofia Vasquez',
+    'Alex Kowalski','Luca Bianchi','Grace Nkosi','Pavel Horak','Mei Tanaka','Omar Hassan',
+    'Elena Petrov','Carlos Ruiz','Amira Diallo','Ben Fletcher','Yuki Saito','Fatima Al-Amin',
+    'Ivan Kozlov','Sara Lindqvist','Kwame Asante','Diana Moreau','Raj Patel','Chloe Martin',
+    'Andrei Popescu','Hana Suzuki','Marco Silva','Ingrid Holm','Zara Ahmed','Felix Wagner',
+    'Priya Sharma','Louis Dubois','Aisha Bello','Dmitri Volkov','Clara Jensen','Ahmed Khalil',
+    'Mia Johansson','Tariq Nasser','Emma Wilson','Seun Adeyemi','Vlad Stanescu','Leila Hosseini',
+    'Baptiste Laurent','Yuna Park','Tobias Muller','Chioma Obi','Radu Ionescu','Nina Kovac',
+    'Hassan Diop','Astrid Berg'];
+
+  var players = [];
+  for (var i = 0; i < 120; i++) {
+    var name = NAMES[i % NAMES.length] + (i >= NAMES.length ? ' ' + (Math.floor(i / NAMES.length) + 1) : '');
+    var stars = Math.max(1, 210 - i * 1.7 + (Math.random() * 4 - 2));
+    var games = Math.max(1, 45 - i * 0.35 + (Math.random() * 4 - 2));
+    players.push({ name: name, stars: Math.round(stars), games: Math.round(games), grad: GRADIENTS[i % GRADIENTS.length], isYou: i === 6 });
+  }
+  // Sort: stars desc, then games desc
+  players.sort(function(a, b) { return b.stars !== a.stars ? b.stars - a.stars : b.games - a.games; });
+
+  var currentPage = 1;
+  var PER_PAGE = 50;
+
+  function buildPlayers() {
+    window._playersBuilt = true;
+    renderPage(1);
+  }
+
+  function renderPage(page) {
+    currentPage = page;
+    var start = (page - 1) * PER_PAGE;
+    var end = Math.min(start + PER_PAGE, players.length);
+    var body = document.getElementById('players-body');
+    var html = '';
+    for (var i = start; i < end; i++) {
+      var p = players[i];
+      var rank = i + 1;
+      var rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+      var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').substring(0,2).toUpperCase();
+      html += '<div class="players-row' + (p.isYou ? ' you' : '') + '">';
+      html += '<div class="p-rank ' + rankClass + '">' + rank + '</div>';
+      html += '<div class="p-player"><div class="p-avatar" style="background:' + p.grad + '">' + initials + '</div><div class="p-name">' + p.name + (p.isYou ? '<span class="p-you">YOU</span>' : '') + '</div></div>';
+      html += '<div class="p-stars">&#9733; <span>' + p.stars + '</span></div>';
+      html += '<div class="p-games">' + p.games + '</div>';
+      var avg = p.games > 0 ? (p.stars / p.games).toFixed(1) : '0.0';
+      html += '<div class="p-games" style="color:var(--gold)">' + avg + ' &#9733;</div>';
+      html += '</div>';
+    }
+    body.innerHTML = html;
+    var totalPages = Math.ceil(players.length / PER_PAGE);
+    document.getElementById('pagination-info').textContent = 'Showing ' + (start + 1) + '\u2013' + end + ' of ' + players.length + ' players';
+    // Rebuild pagination buttons
+    var btnsEl = document.querySelector('.pagination-btns');
+    var btnsHtml = '';
+    for (var pg = 1; pg <= totalPages; pg++) {
+      btnsHtml += '<button class="page-btn' + (pg === page ? ' active' : '') + '" onclick="goPage(' + pg + ')">' + pg + '</button>';
+    }
+    if (page < totalPages) btnsHtml += '<button class="page-btn" onclick="goPage(' + (page + 1) + ')">Next &rarr;</button>';
+    btnsEl.innerHTML = btnsHtml;
+  }
+
+  window.goPage = function(page) {
+    if (page < 1) return;
+    var totalPages = Math.ceil(players.length / PER_PAGE);
+    if (page > totalPages) return;
+    renderPage(page);
+    document.getElementById('screen-players').scrollTop = 0;
+  };
+
+})();
+</script>
+</body>
+</html>
