@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './games.css'
 import GameModal from './GameModal'
 import AdminModal from './AdminModal'
@@ -98,10 +98,17 @@ function badgesForGame(game) {
 
 export default function GamesScreen({ active }) {
   const today = new Date()
-  const [activeMonth, setActiveMonth] = useState(today.getMonth())    // 0-indexed, synced to current month
-  const [activeDay, setActiveDay]     = useState(today.getDate())     // synced to current day of month
-  const [selectedGame, setSelectedGame] = useState(null)  // null = closed, game object = open
+  const [activeMonth, setActiveMonth] = useState(today.getMonth())
+  const [activeDay, setActiveDay]     = useState(today.getDate())
+  const [selectedGame, setSelectedGame] = useState(null)
   const [adminOpen, setAdminOpen]       = useState(false)
+
+  const activeChipRef = useRef(null)
+
+  // Format subtitle: e.g. "Monday, 09 March"
+  const FULL_DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+  const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  const subtitle = `${FULL_DAYS[today.getDay()]}, ${String(today.getDate()).padStart(2,'0')} ${FULL_MONTHS[today.getMonth()]}`
 
   // Close modals on Escape key
   useEffect(() => {
@@ -114,6 +121,13 @@ export default function GamesScreen({ active }) {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  // Scroll active date chip into view whenever it changes
+  useEffect(() => {
+    if (activeChipRef.current) {
+      activeChipRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
+  }, [activeDay, activeMonth])
 
   // Reset active day to 1 when month changes
   function changeMonth(dir) {
@@ -137,7 +151,7 @@ export default function GamesScreen({ active }) {
         <div className="page-header">
           <div>
             <div className="page-title">TODAY'S GAMES</div>
-            <div className="page-subtitle">Wednesday, 02 March &middot; Tbilisi Public Pitch</div>
+            <div className="page-subtitle">{subtitle} &middot; Tbilisi Public Pitch</div>
           </div>
           <div className="header-actions">
             <button className="btn btn-admin" onClick={() => setAdminOpen(true)}>⚙ Create Reservation</button>
@@ -161,6 +175,7 @@ export default function GamesScreen({ active }) {
           {days.map(({ dayNum, dow }) => (
             <div
               key={dayNum}
+              ref={activeDay === dayNum ? activeChipRef : null}
               className={`date-chip ${activeDay === dayNum ? 'active' : ''}`}
               onClick={() => setActiveDay(dayNum)}
             >
