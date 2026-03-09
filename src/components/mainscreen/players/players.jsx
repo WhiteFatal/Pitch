@@ -1,66 +1,86 @@
+// useMemo: uncomment usage after connecting Firebase (for sorting/filtering live data)
+//import { useState, useMemo } from 'react' 
+import { useState } from 'react' // useMemo: uncomment usage after connecting Firebase (for sorting/filtering live data)
 import './players.css'
+import { ALL_PLAYERS } from './playersData'
+import { displayName } from '../../../utils'
 
-export default function PlayersScreen() {
-    return (
-        <>
-          <div className="content screen" id="screen-players">
-            <div className="topbar">
-              <div className="mobile-logo">PITCH</div>
-              <div className="topbar-greeting">Good morning, <strong>Alex K.</strong> &#128075;</div>
-              <div className="mobile-nav">
-                <div className="mobile-nav-icon" id="mnav-games-players" onclick="showScreen('games')">&#9917;</div>
-                <div className="mobile-nav-icon gold-icon" id="mnav-profile-players" onclick="showScreen('profile')"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>
-                <div className="mobile-nav-icon active" id="mnav-players-players" onclick="showScreen('players')">&#127942;</div>
-                <div className="mobile-nav-icon" id="mnav-notifs-players" style={{position: "relative"}} onclick="showScreen('notifs')">&#128276;<div className="notif-dot"></div></div>
-              </div>
-              <div className="user-menu" id="userMenu-players">
-                <div className="user-btn" onclick="toggleUserMenu('players')">
-                  <div className="user-avatar">AK</div>
-                  <span className="user-name">Alex K.</span>
-                  <span className="user-chevron">&#9660;</span>
-                </div>
-                <div className="user-dropdown">
-                  <div className="dropdown-header">
-                    <div className="dropdown-avatar">AK</div>
-                    <div>
-                      <div className="dropdown-name">Alex Kowalski</div>
-                      <div className="dropdown-email">alex [at] pitchup.ge</div>
-                    </div>
-                  </div>
-                  <div className="dropdown-items">
-                    <div className="dropdown-item"><span className="dropdown-icon">&#9881;&#65039;</span> Settings</div>
-                    <div className="dropdown-item danger"><span className="dropdown-icon">&#8617;</span> Log Out</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="page-header" style={{marginBottom: "28px"}}>
-              <div>
-                <div className="page-title">TOP PLAYERS</div>
-                <div className="page-subtitle">Ranked by stars &rarr; then games played</div>
-              </div>
-            </div>
+const PER_PAGE = 50
 
-            <div className="players-table">
-              <div className="players-header" style={{gridTemplateColumns: "48px 1fr 100px 80px 90px"}}>
-                <div>#</div>
-                <div>Player</div>
-                <div>Stars</div>
-                <div>Games</div>
-                <div>Avg/Game</div>
-              </div>
-              <div id="players-body"></div>
-              <div className="players-pagination">
-                <span id="pagination-info">Showing 1–50 of 120 players</span>
-                <div className="pagination-btns">
-                  <button className="page-btn active" onclick="goPage(1)">1</button>
-                  <button className="page-btn" onclick="goPage(2)">2</button>
-                  <button className="page-btn" onclick="goPage(3)">3</button>
-                  <button className="page-btn" onclick="goPage(-1)">Next &rarr;</button>
+export default function PlayersScreen({ active }) {
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const totalPages = Math.ceil(ALL_PLAYERS.length / PER_PAGE)
+  const start = (currentPage - 1) * PER_PAGE
+  const end = Math.min(start + PER_PAGE, ALL_PLAYERS.length)
+  const pagePlayers = ALL_PLAYERS.slice(start, end)
+
+  function goPage(page) {
+    if (page < 1 || page > totalPages) return
+    setCurrentPage(page)
+  }
+
+  return (
+    <div className={`content screen ${active ? 'active' : ''}`} id="screen-players">
+
+      <div className="page-header" style={{marginBottom: '28px'}}>
+        <div>
+          <div className="page-title">TOP PLAYERS</div>
+          <div className="page-subtitle">Ranked by stars &rarr; then games played</div>
+        </div>
+      </div>
+
+      <div className="players-table">
+        <div className="players-header">
+          <div>#</div>
+          <div>Player</div>
+          <div>Stars</div>
+          <div>Games</div>
+          <div>Avg/Game</div>
+        </div>
+
+        <div id="players-body">
+          {pagePlayers.map((p, i) => {
+            const rank = start + i + 1
+            const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : ''
+            const initials = (p.firstName[0] + p.lastName[0]).toUpperCase()
+            const avg = p.games > 0 ? (p.stars / p.games).toFixed(1) : '0.0'
+
+            return (
+              <div key={`${p.firstName}-${p.lastName}`} className={`players-row ${p.isYou ? 'you' : ''}`}>
+                <div className={`p-rank ${rankClass}`}>{rank}</div>
+                <div className="p-player">
+                  <div className="p-avatar" style={{background: p.grad}}>{initials}</div>
+                  <div className="p-name">
+                    {displayName(p.firstName, p.nickname, p.lastName)}
+                    {p.isYou && <span className="p-you">YOU</span>}
+                  </div>
                 </div>
+                <div className="p-stars">&#9733; <span>{p.stars}</span></div>
+                <div className="p-games">{p.games}</div>
+                <div className="p-games" style={{color: 'var(--gold)'}}>{avg} &#9733;</div>
               </div>
-            </div>
+            )
+          })}
+        </div>
+
+        <div className="players-pagination">
+          <span>Showing {start + 1}–{end} of {ALL_PLAYERS.length} players</span>
+          <div className="pagination-btns">
+            {Array.from({length: totalPages}, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                onClick={() => goPage(page)}
+              >{page}</button>
+            ))}
+            {currentPage < totalPages && (
+              <button className="page-btn" onClick={() => goPage(currentPage + 1)}>Next &rarr;</button>
+            )}
           </div>
-        </>
-    )
+        </div>
+      </div>
+
+    </div>
+  )
 }
