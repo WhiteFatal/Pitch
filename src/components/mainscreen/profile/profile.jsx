@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { doc, getDoc, setDoc, collection, query, where, getCountFromServer } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import './profile.css'
 import { displayName } from '../../../utils'
@@ -23,13 +23,11 @@ export default function ProfileScreen({ active, user }) {
   const [saved, setSaved]     = useState(false)
   const [error, setError]     = useState(null)
 
-  // Fetch user profile + games played count from Firestore
   useEffect(() => {
     if (!user) return
 
     async function fetchProfile() {
       try {
-        // 1. Fetch user document
         const userRef  = doc(db, 'users', user.uid)
         const userSnap = await getDoc(userRef)
 
@@ -41,11 +39,12 @@ export default function ProfileScreen({ active, user }) {
             lastName:  data.lastName  || '',
             email:     user.email     || '',
           })
-          setStats(prev => ({
-            ...prev,
+          // Single source of truth — all stats from users document
+          setStats({
+            gamesPlayed:   data.gamesPlayed   || 0,
             starsReceived: data.starsReceived || 0,
             createdAt:     data.createdAt     || null,
-          }))
+          })
         } else {
           // First time — no Firestore doc yet, fall back to Google name
           const parts     = (user.displayName || '').trim().split(' ')
@@ -53,12 +52,6 @@ export default function ProfileScreen({ active, user }) {
           const lastName  = parts.slice(1).join(' ') || ''
           setForm(prev => ({ ...prev, firstName, lastName }))
         }
-
-        // 2. Count reservations for this user
-        const resQuery   = query(collection(db, 'reservations'), where('userId', '==', user.uid))
-        const resSnap    = await getCountFromServer(resQuery)
-        setStats(prev => ({ ...prev, gamesPlayed: resSnap.data().count }))
-
       } catch (err) {
         console.error('Error fetching profile:', err)
         setError('Failed to load profile.')
@@ -79,14 +72,12 @@ export default function ProfileScreen({ active, user }) {
     try {
       const userRef = doc(db, 'users', user.uid)
       await setDoc(userRef, {
-        firstName:     form.firstName,
-        nickname:      form.nickname,
-        lastName:      form.lastName,
-        email:         user.email,
-        photoURL:      user.photoURL || '',
-        starsReceived: stats.starsReceived,
-        createdAt:     stats.createdAt,
-      }, { merge: true }) // merge: true — only updates provided fields, doesn't overwrite others
+        firstName: form.firstName,
+        nickname:  form.nickname,
+        lastName:  form.lastName,
+        email:     user.email,
+        photoURL:  user.photoURL || '',
+      }, { merge: true })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch (err) {
@@ -98,7 +89,6 @@ export default function ProfileScreen({ active, user }) {
   const photoURL = user?.photoURL || null
   const initials = ((form.firstName[0] || '') + (form.lastName[0] || '')).toUpperCase()
 
-  // Format "since" date from Firestore timestamp
   const since = stats.createdAt
     ? stats.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : null

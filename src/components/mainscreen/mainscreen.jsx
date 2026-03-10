@@ -12,9 +12,9 @@ export default function MainScreen({ activeScreen, onNavigate, user }) {
       <div className="main">
         <GamesScreen active={activeScreen === 'games'} user={user} />
         <ProfileScreen active={activeScreen === 'profile'} user={user} />
-        <PlayersScreen active={activeScreen === 'players'} />
+        <PlayersScreen active={activeScreen === 'players'} user={user} />
         <NotificationsScreen active={activeScreen === 'notifs'} />
-        <RightSidebar />
+        <RightSidebar user={user} />
       </div>
     </div>
   )
