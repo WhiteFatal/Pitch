@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { collection, addDoc, Timestamp } from 'firebase/firestore'
+import { db } from '../../../firebase'
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
@@ -8,7 +10,7 @@ const TIME_OPTIONS = Array.from({length: 48}, (_, i) => {
   return `${h}:${m}`
 })
 
-export default function AdminModal({ onClose }) {
+export default function AdminModal({ onClose, user }) {
   const today = new Date()
   const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
 
@@ -22,16 +24,50 @@ export default function AdminModal({ onClose }) {
     price:    '10',
   })
 
+  const [saving, setSaving] = useState(false)
+  const [error, setError]   = useState(null)
+
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  function handleSubmit() {
-    // TODO: save new game to Firebase when connected
-    onClose()
+  async function handleSubmit() {
+    setError(null)
+    setSaving(true)
+    try {
+      const teams    = parseInt(form.teams)    || 3
+      const teamSize = parseInt(form.teamSize) || 6
+      const duration = parseInt(form.duration) || 60
+      const price    = parseInt(form.price)    || 0
+
+      // Calculate endTime from date + time + duration
+      const [year, month, day] = form.date.split('-').map(Number)
+      const [hour, minute]     = form.time.split(':').map(Number)
+      const startDate = new Date(year, month - 1, day, hour, minute)
+      const endDate   = new Date(startDate.getTime() + duration * 60 * 1000)
+
+      await addDoc(collection(db, 'games'), {
+        date:      form.date,
+        time:      form.time,
+        duration,
+        pitch:     form.pitch,
+        teams,
+        teamSize,
+        price,
+        status:    'open',
+        endTime:   Timestamp.fromDate(endDate),
+        createdBy: user.uid,
+        createdAt: Timestamp.now(),
+      })
+
+      onClose()
+    } catch (err) {
+      console.error('Error creating game:', err)
+      setError('Failed to create game. Please try again.')
+      setSaving(false)
+    }
   }
 
-  // Derived values — no DOM reading needed
   const teams    = parseInt(form.teams)    || 3
   const teamSize = parseInt(form.teamSize) || 6
   const price    = parseInt(form.price)    || 0
@@ -144,10 +180,24 @@ export default function AdminModal({ onClose }) {
           </div>
         </div>
 
-        <button className="btn btn-primary" style={{width: '100%', justifyContent: 'center', padding: '14px'}} onClick={handleSubmit}>
-          ✓ Create Game Slot
+        {error && (
+          <div style={{color: 'var(--red)', fontSize: '13px', marginBottom: '12px'}}>{error}</div>
+        )}
+
+        <button
+          className="btn btn-primary"
+          style={{width: '100%', justifyContent: 'center', padding: '14px'}}
+          onClick={handleSubmit}
+          disabled={saving}
+        >
+          {saving ? 'Creating...' : '✓ Create Game Slot'}
         </button>
-        <button className="btn btn-ghost" style={{width: '100%', justifyContent: 'center', marginTop: '10px', padding: '12px'}} onClick={onClose}>
+        <button
+          className="btn btn-ghost"
+          style={{width: '100%', justifyContent: 'center', marginTop: '10px', padding: '12px'}}
+          onClick={onClose}
+          disabled={saving}
+        >
           Cancel
         </button>
       </div>
