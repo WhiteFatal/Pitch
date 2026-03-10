@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { collection, query, where, getDocs, getCountFromServer } from 'firebase/firestore'
+import { db } from '../../../firebase'
 import './games.css'
 import GameModal from './GameModal'
 import AdminModal from './AdminModal'
@@ -7,79 +9,11 @@ const MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST
 const MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31]
 const MONTH_START_DAYS = [3,6,0,3,5,1,3,6,2,4,0,2] // day of week for 1st of each month in 2026 (0=Sun)
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const FULL_DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
-// TODO: replace with real games fetched from Firebase
-const GAMES = [
-  {
-    id: 1,
-    time: '06:00',
-    spots: '11/18',
-    spotsNum: 11,
-    spotsTotal: 18,
-    balance: 'Balanced',
-    pitch: 'Pitch A',
-    duration: '60 min',
-    status: 'joined',
-    avatars: [
-      { initials: 'AK', grad: null },
-      { initials: 'MG', grad: 'linear-gradient(135deg,#f59e0b,#ef4444)' },
-      { initials: 'TL', grad: 'linear-gradient(135deg,#10b981,#3b82f6)' },
-      { initials: 'NR', grad: 'linear-gradient(135deg,#ec4899,#8b5cf6)' },
-    ],
-    extra: 7,
-  },
-  {
-    id: 2,
-    time: '09:30',
-    spots: '6/18',
-    spotsNum: 6,
-    spotsTotal: 18,
-    balance: 'Unbalanced',
-    pitch: 'Pitch B',
-    duration: '90 min',
-    status: 'open',
-    avatars: [
-      { initials: 'JK', grad: 'linear-gradient(135deg,#f59e0b,#ef4444)' },
-      { initials: 'RD', grad: 'linear-gradient(135deg,#10b981,#3b82f6)' },
-      { initials: 'SV', grad: 'linear-gradient(135deg,#ec4899,#8b5cf6)' },
-    ],
-    extra: 3,
-  },
-  {
-    id: 3,
-    time: '12:00',
-    spots: '18/18',
-    spotsNum: 18,
-    spotsTotal: 18,
-    balance: 'Balanced',
-    pitch: 'Pitch A',
-    duration: '60 min',
-    status: 'full',
-    avatars: [
-      { initials: 'MM', grad: 'linear-gradient(135deg,#f59e0b,#ef4444)' },
-      { initials: 'PK', grad: 'linear-gradient(135deg,#10b981,#3b82f6)' },
-      { initials: 'LB', grad: 'linear-gradient(135deg,#6366f1,#ec4899)' },
-    ],
-    extra: 15,
-  },
-  {
-    id: 4,
-    time: '18:00',
-    spots: '3/18',
-    spotsNum: 3,
-    spotsTotal: 18,
-    balance: 'Cancelled',
-    pitch: 'Pitch C',
-    duration: '90 min',
-    status: 'cancelled',
-    avatars: [
-      { initials: 'AB', grad: 'linear-gradient(135deg,#6366f1,#ec4899)' },
-      { initials: 'CE', grad: 'linear-gradient(135deg,#f59e0b,#ef4444)' },
-      { initials: 'DV', grad: 'linear-gradient(135deg,#10b981,#f59e0b)' },
-    ],
-    extra: 0,
-  },
-]
+// Initialized once at app load — used for default month/day and subtitle
+const today = new Date()
 
 function spotsFillClass(status) {
   if (status === 'full')      return 's-full'
@@ -91,24 +25,95 @@ function badgesForGame(game) {
   if (game.status === 'full')      return <span className="badge badge-full">Full</span>
   if (game.status === 'cancelled') return <span className="badge badge-cancelled">✕ Cancelled</span>
   return <>
-    {game.status === 'joined' && <span className="badge badge-joined">✓ Joined</span>}
+    {game.joined && <span className="badge badge-joined">✓ Joined</span>}
     <span className="badge badge-open">Open</span>
   </>
 }
 
-export default function GamesScreen({ active }) {
-  const today = new Date()
+// Format Firestore date string to display: "2026-03-10" → "2026-03-10"
+function formatDateKey(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+export default function GamesScreen({ active, user }) {
   const [activeMonth, setActiveMonth] = useState(today.getMonth())
   const [activeDay, setActiveDay]     = useState(today.getDate())
+  const [games, setGames]             = useState([])
+  const [loading, setLoading]         = useState(false)
   const [selectedGame, setSelectedGame] = useState(null)
   const [adminOpen, setAdminOpen]       = useState(false)
 
   const activeChipRef = useRef(null)
 
-  // Format subtitle: e.g. "Monday, 09 March"
-  const FULL_DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-  const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
   const subtitle = `${FULL_DAYS[today.getDay()]}, ${String(today.getDate()).padStart(2,'0')} ${FULL_MONTHS[today.getMonth()]}`
+
+  // Fetch games for selected date
+  useEffect(() => {
+    async function fetchGames() {
+      setLoading(true)
+      setGames([])
+      try {
+        const dateKey = formatDateKey(today.getFullYear(), activeMonth, activeDay)
+
+        // 1. Fetch games for this date
+        const gamesQuery = query(collection(db, 'games'), where('date', '==', dateKey))
+        const gamesSnap  = await getDocs(gamesQuery)
+
+        if (gamesSnap.empty) {
+          setGames([])
+          setLoading(false)
+          return
+        }
+
+        // 2. For each game, fetch reservation count + check if user has joined
+        const gamesWithStats = await Promise.all(
+          gamesSnap.docs.map(async (gameDoc) => {
+            const game   = { id: gameDoc.id, ...gameDoc.data() }
+            const spotsTotal = (game.teams || 3) * (game.teamSize || 6)
+
+            // Count total reservations for this game
+            const resCountQuery = query(collection(db, 'reservations'), where('gameId', '==', game.id))
+            const resCountSnap  = await getCountFromServer(resCountQuery)
+            const spotsNum      = resCountSnap.data().count
+
+            // Check if current user has joined
+            const userResQuery = query(
+              collection(db, 'reservations'),
+              where('gameId', '==', game.id),
+              where('userId', '==', user.uid)
+            )
+            const userResSnap = await getDocs(userResQuery)
+            const joined      = !userResSnap.empty
+
+            // Derive status from spots if not explicitly set
+            let status = game.status || 'open'
+            if (status !== 'cancelled' && status !== 'finished') {
+              if (spotsNum >= spotsTotal) status = 'full'
+            }
+
+            return {
+              ...game,
+              spotsNum,
+              spotsTotal,
+              status,
+              joined,
+            }
+          })
+        )
+
+        // Sort by time
+        gamesWithStats.sort((a, b) => a.time.localeCompare(b.time))
+        setGames(gamesWithStats)
+
+      } catch (err) {
+        console.error('Error fetching games:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGames()
+  }, [activeDay, activeMonth, user.uid]) // re-fetch when date or user changes
 
   // Close modals on Escape key
   useEffect(() => {
@@ -140,7 +145,7 @@ export default function GamesScreen({ active }) {
   const startDay = MONTH_START_DAYS[activeMonth]
   const days = Array.from({length: numDays}, (_, i) => {
     const dayNum = i + 1
-    const dow = DAY_NAMES[(startDay + i) % 7]
+    const dow    = DAY_NAMES[(startDay + i) % 7]
     return { dayNum, dow }
   })
 
@@ -155,7 +160,7 @@ export default function GamesScreen({ active }) {
           </div>
           <div className="header-actions">
             <button className="btn btn-admin" onClick={() => setAdminOpen(true)}>⚙ Create Reservation</button>
-            <button className="btn btn-primary" onClick={() => setSelectedGame(GAMES[0])}>+ Reserve Spot</button>
+            <button className="btn btn-primary" onClick={() => setSelectedGame(games[0] || null)}>+ Reserve Spot</button>
           </div>
         </div>
 
@@ -185,14 +190,21 @@ export default function GamesScreen({ active }) {
           ))}
         </div>
 
-        <div className="section-label">Upcoming &middot; 4 Games &middot; 18 spots each (3 teams &times; 6 players)</div>
+        <div className="section-label">
+          {loading
+            ? 'Loading games...'
+            : games.length > 0
+              ? `${games.length} Game${games.length > 1 ? 's' : ''} &middot; ${games[0]?.teamSize * games[0]?.teams} spots each (${games[0]?.teams} teams × ${games[0]?.teamSize} players)`
+              : 'No games scheduled for this day'
+          }
+        </div>
 
         {/* GAME CARDS */}
         <div className="games">
-          {GAMES.map(game => (
+          {games.map(game => (
             <div
               key={game.id}
-              className={`game-card ${game.status}`}
+              className={`game-card ${game.status} ${game.joined ? 'joined' : ''}`}
               onClick={() => setSelectedGame(game)}
             >
               <div className="game-top">
@@ -200,16 +212,13 @@ export default function GamesScreen({ active }) {
                 <div className="game-badges">{badgesForGame(game)}</div>
               </div>
               <div className="game-meta">
-                <span>⚽ 6-a-side &middot; 3 teams</span>
-                <span>📍 {game.pitch}</span>
-                <span>⏱ {game.duration}</span>
+                <span>⚽ {game.teamSize}-a-side &middot; {game.teams} teams</span>
+                <span>📍 Pitch {game.pitch}</span>
+                <span>⏱ {game.duration} min</span>
               </div>
               <div className="player-row">
                 <div className="avatars">
-                  {game.avatars.map((a, i) => (
-                    <div key={i} className="avatar" style={a.grad ? {background: a.grad} : {}}>{a.initials}</div>
-                  ))}
-                  {game.extra > 0 && <div className="avatar more">+{game.extra}</div>}
+                  <div className="avatar more">👥 {game.spotsNum}</div>
                 </div>
                 <div className="spots-bar">
                   <div className="spots-track">
@@ -229,7 +238,7 @@ export default function GamesScreen({ active }) {
 
       {/* MODALS */}
       {selectedGame && <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />}
-      {adminOpen    && <AdminModal onClose={() => setAdminOpen(false)} />}
+      {adminOpen    && <AdminModal onClose={() => setAdminOpen(false)} user={user} />}
     </>
   )
 }
