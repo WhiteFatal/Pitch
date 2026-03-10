@@ -1,0 +1,29 @@
+.profile-hero { display: flex; align-items: center; gap: 24px; padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 24px; }
+
+.profile-avatar-lg { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg,#4d9fff,#a855f7); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; flex-shrink: 0; border: 3px solid var(--border); }
+.profile-avatar-lg-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 3px solid var(--border); }
+
+.profile-name { font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 1; letter-spacing: .5px; }
+.profile-email { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+.profile-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.profile-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; text-align: center; }
+.profile-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 1; letter-spacing: 1px; color: var(--accent); }
+.profile-stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-top: 6px; }
+.profile-stat-sub { font-size: 11px; color: var(--mid); margin-top: 4px; }
+
+.profile-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; }
+.profile-form-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; margin-bottom: 20px; letter-spacing: .5px; }
+.profile-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.profile-field:last-of-type { margin-bottom: 24px; }
+.profile-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.profile-input { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 14px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color .15s; }
+.profile-input:focus { border-color: rgba(200,242,90,0.5); }
+.profile-input:disabled { opacity: .5; cursor: not-allowed; }
+
+@media (max-width: 900px) {
+  .profile-name { font-size: 28px; }
+  .profile-stat-val { font-size: 44px; }
+  .profile-avatar-lg { font-size: 24px; }
+  .profile-form-title { font-size: 19px; }
+}

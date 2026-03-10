@@ -1,19 +1,50 @@
 import { useState, useEffect } from 'react'
+import { signOut } from 'firebase/auth'
+import { auth } from '../../firebase'
 import './header.css'
 
-export default function Header({ activeScreen, onNavigate }) {
+function getInitials(displayName) {
+  if (!displayName) return '?'
+  const parts = displayName.trim().split(' ')
+  if (parts.length === 1) return parts[0][0].toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+function getFirstName(displayName) {
+  if (!displayName) return 'Player'
+  return displayName.trim().split(' ')[0]
+}
+
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+export default function Header({ activeScreen, onNavigate, user }) {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const initials    = getInitials(user?.displayName)
+  const firstName   = getFirstName(user?.displayName)
+  const fullName    = user?.displayName || 'Player'
+  const email       = user?.email || ''
+  const photoURL    = user?.photoURL || null
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClick(e) {
-      if (!e.target.closest('.user-menu')) {
-        setMenuOpen(false)
-      }
+      if (!e.target.closest('.user-menu')) setMenuOpen(false)
     }
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
   }, [])
+
+  async function handleSignOut() {
+    setMenuOpen(false)
+    await signOut(auth)
+    // onAuthStateChanged in App.jsx will detect sign out and show Login screen
+  }
 
   return (
     <div className="topbar">
@@ -23,7 +54,7 @@ export default function Header({ activeScreen, onNavigate }) {
         <div className="mobile-logo">PITCH</div>
 
         <div className="topbar-greeting">
-          Good morning, <strong>Alex K.</strong> &#128075;
+          {getGreeting()}, <strong>{firstName}</strong> 👋
         </div>
 
         {/* Mobile Nav Icons */}
@@ -31,7 +62,7 @@ export default function Header({ activeScreen, onNavigate }) {
           <div
             className={`mobile-nav-icon ${activeScreen === 'games' ? 'active' : ''}`}
             onClick={() => onNavigate('games')}
-          >&#9917;</div>
+          >⚽</div>
 
           <div
             className={`mobile-nav-icon gold-icon ${activeScreen === 'profile' ? 'active' : ''}`}
@@ -45,14 +76,14 @@ export default function Header({ activeScreen, onNavigate }) {
           <div
             className={`mobile-nav-icon ${activeScreen === 'players' ? 'active' : ''}`}
             onClick={() => onNavigate('players')}
-          >&#127942;</div>
+          >🏆</div>
 
           <div
             className={`mobile-nav-icon ${activeScreen === 'notifs' ? 'active' : ''}`}
             style={{ position: 'relative' }}
             onClick={() => onNavigate('notifs')}
           >
-            &#128276;
+            🔔
             <div className="notif-dot"></div>
           </div>
         </div>
@@ -60,28 +91,36 @@ export default function Header({ activeScreen, onNavigate }) {
         {/* User Menu */}
         <div className={`user-menu ${menuOpen ? 'open' : ''}`}>
           <div className="user-btn" onClick={() => setMenuOpen(prev => !prev)}>
-            <div className="user-avatar">AK</div>
-            <span className="user-name">Alex K.</span>
-            <span className="user-chevron">&#9660;</span>
+            {photoURL
+              ? <img src={photoURL} className="user-avatar user-avatar-photo" alt={fullName} />
+              : <div className="user-avatar">{initials}</div>
+            }
+            <span className="user-name">{firstName}</span>
+            <span className="user-chevron">▾</span>
           </div>
+
           <div className="user-dropdown">
             <div className="dropdown-header">
-              <div className="dropdown-avatar">AK</div>
+              {photoURL
+                ? <img src={photoURL} className="dropdown-avatar dropdown-avatar-photo" alt={fullName} />
+                : <div className="dropdown-avatar">{initials}</div>
+              }
               <div>
-                <div className="dropdown-name">Alex Kowalski</div>
-                <div className="dropdown-email">alex@pitchup.ge</div>
+                <div className="dropdown-name">{fullName}</div>
+                <div className="dropdown-email">{email}</div>
               </div>
             </div>
             <div className="dropdown-items">
               <div className="dropdown-item">
-                <span className="dropdown-icon">&#9881;&#65039;</span> Settings
+                <span className="dropdown-icon">⚙️</span> Settings
               </div>
-              <div className="dropdown-item danger">
-                <span className="dropdown-icon">&#8617;</span> Log Out
+              <div className="dropdown-item danger" onClick={handleSignOut}>
+                <span className="dropdown-icon">↩</span> Log Out
               </div>
             </div>
           </div>
         </div>
+
       </div>
 
       {/* Mobile bottom border */}

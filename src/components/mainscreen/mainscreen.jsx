@@ -5,13 +5,13 @@ import ProfileScreen from './profile/profile'
 import PlayersScreen from './players/players'
 import NotificationsScreen from './notifications/notifications'
 
-export default function MainScreen({ activeScreen, onNavigate }) {
+export default function MainScreen({ activeScreen, onNavigate, user }) {
   return (
     <div className="main-wrapper">
-      <Header activeScreen={activeScreen} onNavigate={onNavigate} />
+      <Header activeScreen={activeScreen} onNavigate={onNavigate} user={user} />
       <div className="main">
         <GamesScreen active={activeScreen === 'games'} />
-        <ProfileScreen active={activeScreen === 'profile'} />
+        <ProfileScreen active={activeScreen === 'profile'} user={user} />
         <PlayersScreen active={activeScreen === 'players'} />
         <NotificationsScreen active={activeScreen === 'notifs'} />
         <RightSidebar />

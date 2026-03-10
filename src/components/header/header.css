@@ -211,3 +211,18 @@
 @media(max-width: 576px) {
   .mobile-logo { display: none; }
 }
+
+/* ── GOOGLE PROFILE PHOTO ── */
+.user-avatar-photo {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dropdown-avatar-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+}
