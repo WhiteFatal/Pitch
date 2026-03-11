@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase'
 import './rightsidebar.css'
-import { displayName } from '../../utils'
+import { displayName, formatTime } from '../../utils'
 
 const GRADIENTS = [
   'linear-gradient(135deg,#f5c518,#ef4444)',
@@ -17,7 +17,7 @@ const GRADIENTS = [
 
 const RANK_CLASSES = ['gold', 'silver', 'bronze']
 
-export default function RightSidebar({ user }) {
+export default function RightSidebar({ user, notifications = [] }) {
   const [topPlayers, setTopPlayers] = useState([])
   const [you, setYou]               = useState(null)
   const [youRank, setYouRank]       = useState(null)
@@ -130,18 +130,26 @@ export default function RightSidebar({ user }) {
       <div className="panel-card">
         <div className="panel-card-title">🔔 Notifications</div>
         <div className="notif-list-panel">
-          <div className="notif-item" style={{borderLeftColor: 'var(--accent)'}}>
-            <div>⚽ New game created &mdash; <strong>06:00</strong> on 03 March</div>
-            <div className="notif-time">2 min ago</div>
-          </div>
-          <div className="notif-item" style={{borderLeftColor: 'var(--green)'}}>
-            <div>👥 12:00 game is now full &mdash; all 18 spots taken</div>
-            <div className="notif-time">Yesterday</div>
-          </div>
-          <div className="notif-item" style={{borderLeftColor: 'var(--red)', opacity: '.75'}}>
-            <div>🚫 18:00 game was cancelled by admin</div>
-            <div className="notif-time">Yesterday</div>
-          </div>
+          {notifications.length === 0 ? (
+            <div style={{color: 'var(--muted)', fontSize: '13px'}}>No notifications yet.</div>
+          ) : (
+            notifications.slice(0, 3).map(n => {
+              const icon  = n.type === 'game_cancelled'  ? '🚫'
+                          : n.type === 'game_full'        ? '👥'
+                          : n.type === 'player_withdrew'  ? '↩'
+                          : '⚽'
+              const color = n.type === 'game_cancelled'  ? 'var(--red)'
+                          : n.type === 'game_full'        ? 'var(--green)'
+                          : n.type === 'player_withdrew'  ? 'var(--orange)'
+                          : 'var(--accent)'
+              return (
+                <div key={n.id} className="notif-item" style={{borderLeftColor: color, opacity: n.read ? .6 : 1}}>
+                  <div>{icon} {n.gameTime} game &mdash; {n.gameDate} &middot; Pitch {n.gamePitch}</div>
+                  <div className="notif-time">{formatTime(n.createdAt)}</div>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
 

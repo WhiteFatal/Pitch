@@ -19,7 +19,7 @@ export default function MainScreen({ activeScreen, onNavigate, user, notificatio
           notifications={notifications}
           onMarkRead={onMarkRead}
           onMarkAllRead={onMarkAllRead} />
-        <RightSidebar user={user} />
+        <RightSidebar user={user} notifications={notifications} />
       </div>
     </div>
   )

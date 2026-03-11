@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, increment, Timestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { displayName } from '../../../utils'
+import { notifyReservedPlayers, notifyGameFull } from './notifHelpers'
 import AdminModal from './AdminModal'
 
 const TEAM_KEYS   = ['a', 'b', 'c', 'd']
@@ -98,6 +99,12 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
         userId: user.uid, gameId: game.id, team: assignTeam(), joinedAt: Timestamp.now(),
       })
       await updateDoc(doc(db, 'users', user.uid), { gamesPlayed: increment(1) })
+
+      // If this reservation fills the game, notify all other reserved players + creator
+      if (spotsUsed + 1 >= spotsTotal) {
+        await notifyGameFull(game, user.uid)
+      }
+
       refresh()
     } catch (err) {
       console.error('Error reserving:', err)
@@ -113,6 +120,10 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
     try {
       await deleteDoc(doc(db, 'reservations', myReservationId))
       await updateDoc(doc(db, 'users', user.uid), { gamesPlayed: increment(-1) })
+
+      // Notify all remaining players in the game that someone withdrew
+      await notifyReservedPlayers(game, user.uid, 'player_withdrew')
+
       refresh()
     } catch (err) {
       console.error('Error leaving:', err)

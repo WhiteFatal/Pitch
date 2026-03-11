@@ -94,6 +94,7 @@ function App() {
         activeScreen={activeScreen}
         onNavigate={setActiveScreen}
         user={user}
+        hasUnread={hasUnread}
         notifications={notifications}
         onMarkRead={handleMarkRead}
         onMarkAllRead={handleMarkAllRead} />

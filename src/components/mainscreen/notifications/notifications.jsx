@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { updateDoc, writeBatch, doc } from 'firebase/firestore'
 import { db } from '../../../firebase'
+import { formatTime } from '../../../utils'
 import './notifications.css'
 
 const PREFS_CONFIG = [
@@ -11,21 +12,6 @@ const PREFS_CONFIG = [
 ]
 
 const INITIAL_PREFS = { cancelled: true, new_game: true, withdraw: false, full: true }
-
-// Format Firestore timestamp to relative or absolute string
-function formatTime(ts) {
-  if (!ts) return ''
-  const date  = ts.toDate()
-  const now   = new Date()
-  const diffM = Math.floor((now - date) / 60000)
-  if (diffM < 1)   return 'Just now'
-  if (diffM < 60)  return `${diffM} minute${diffM > 1 ? 's' : ''} ago`
-  const diffH = Math.floor(diffM / 60)
-  if (diffH < 24)  return `${diffH} hour${diffH > 1 ? 's' : ''} ago`
-  const diffD = Math.floor(diffH / 24)
-  if (diffD === 1) return 'Yesterday'
-  return `${diffD} days ago`
-}
 
 // Map notification type to icon and background
 function iconForType(type) {
@@ -124,8 +110,11 @@ export default function NotificationsScreen({ active, notifications, onMarkRead,
         )}
       </div>
 
-      <div className="notif-settings-card">
-        <div className="notif-settings-title">Notification Preferences</div>
+      <div className="notif-settings-card" style={{opacity: 0.5, pointerEvents: 'none'}}>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px'}}>
+          <div className="notif-settings-title" style={{marginBottom: 0}}>Notification Preferences</div>
+          <span style={{fontSize: '11px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 10px'}}>Coming Soon</span>
+        </div>
         {PREFS_CONFIG.map(pref => (
           <div key={pref.key} className="toggle-row">
             <div className="toggle-info">

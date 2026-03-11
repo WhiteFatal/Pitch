@@ -22,7 +22,7 @@ function getGreeting() {
   return 'Good evening'
 }
 
-export default function Header({ activeScreen, onNavigate, user }) {
+export default function Header({ activeScreen, onNavigate, user, hasUnread }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const initials    = getInitials(user?.displayName)
@@ -84,7 +84,7 @@ export default function Header({ activeScreen, onNavigate, user }) {
             onClick={() => onNavigate('notifs')}
           >
             🔔
-            <div className="notif-dot"></div>
+            {hasUnread && <div className="notif-dot"></div>}
           </div>
         </div>
 

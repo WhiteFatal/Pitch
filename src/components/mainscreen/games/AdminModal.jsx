@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { collection, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
+import { notifyAllUsers } from './notifHelpers'
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
@@ -64,12 +65,14 @@ export default function AdminModal({ onClose, user, game }) {
       if (isEditMode) {
         await updateDoc(doc(db, 'games', game.id), gameData)
       } else {
-        await addDoc(collection(db, 'games'), {
+        const newGameRef = await addDoc(collection(db, 'games'), {
           ...gameData,
           status:    'open',
           createdBy: user.uid,
           createdAt: Timestamp.now(),
         })
+        // Notify all users about the new game
+        await notifyAllUsers({ id: newGameRef.id, ...gameData })
       }
 
       onClose()
