@@ -25,7 +25,7 @@ export default function AdminModal({ onClose, user, game }) {
     teamSize:    isEditMode ? String(game.teamSize)       : '6',
     price:       isEditMode ? String(game.price)          : '10',
     currency:    isEditMode ? (game.currency    || 'GEL') : 'GEL',
-    bankAccount: isEditMode ? (game.bankAccount || '')    : '',
+    bankAccount: isEditMode ? (game.bankAccount || '')    : 'GE59BG0000000663267900GEL - A.K.',
   })
 
   const [saving, setSaving] = useState(false)
