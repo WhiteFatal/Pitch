@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, getCountFromServer, doc, getDoc } fr
 import { db } from '../../../firebase'
 import './games.css'
 import GameModal from './GameModal'
+import StarModal from './StarModal'
 import AdminModal from './AdminModal'
 
 const MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER']
@@ -234,8 +235,16 @@ export default function GamesScreen({ active, user }) {
       </div>
 
       {/* MODALS */}
-      {selectedGame && <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} user={user} onReservationChanged={() => setRefreshKey(k => k + 1)} />}
-      {adminOpen    && <AdminModal onClose={() => { setAdminOpen(false); setRefreshKey(k => k + 1) }} user={user} />}
+      {selectedGame && (() => {
+        const endTime    = selectedGame.endTime?.toDate()
+        const isFinished = endTime && endTime < new Date()
+                        && selectedGame.status !== 'cancelled'
+                        && selectedGame.joined
+        return isFinished
+          ? <StarModal game={selectedGame} onClose={() => setSelectedGame(null)} user={user} />
+          : <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} user={user} onReservationChanged={() => setRefreshKey(k => k + 1)} />
+      })()}
+      {adminOpen && <AdminModal onClose={() => { setAdminOpen(false); setRefreshKey(k => k + 1) }} user={user} />}
     </>
   )
 }

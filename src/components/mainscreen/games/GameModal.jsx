@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, increment, Timestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, Timestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { displayName } from '../../../utils'
 import { notifyReservedPlayers, notifyGameFull } from './notifHelpers'
@@ -98,7 +98,6 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
       await addDoc(collection(db, 'reservations'), {
         userId: user.uid, gameId: game.id, team: assignTeam(), joinedAt: Timestamp.now(),
       })
-      await updateDoc(doc(db, 'users', user.uid), { gamesPlayed: increment(1) })
 
       // If this reservation fills the game, notify all other reserved players + creator
       if (spotsUsed + 1 >= spotsTotal) {
@@ -119,7 +118,6 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
     setSaving(true)
     try {
       await deleteDoc(doc(db, 'reservations', myReservationId))
-      await updateDoc(doc(db, 'users', user.uid), { gamesPlayed: increment(-1) })
 
       // Notify all remaining players in the game that someone withdrew
       await notifyReservedPlayers(game, user.uid, 'player_withdrew')
