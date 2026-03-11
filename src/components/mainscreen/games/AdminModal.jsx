@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { collection, addDoc, Timestamp } from 'firebase/firestore'
+import { collection, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
@@ -10,20 +10,21 @@ const TIME_OPTIONS = Array.from({length: 48}, (_, i) => {
   return `${h}:${m}`
 })
 
-export default function AdminModal({ onClose, user }) {
-  const today = new Date()
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
+export default function AdminModal({ onClose, user, game }) {
+  const isEditMode = !!game
+  const today      = new Date()
+  const todayStr   = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
 
   const [form, setForm] = useState({
-    date:     todayStr,
-    time:     '21:30',
-    pitch:    'A',
-    duration:    '120',
-    teams:    '3',
-    teamSize: '6',
-    price:       '10',
-    currency:    'GEL',
-    bankAccount: '',
+    date:        isEditMode ? game.date                   : todayStr,
+    time:        isEditMode ? game.time                   : '21:30',
+    pitch:       isEditMode ? game.pitch                  : 'A',
+    duration:    isEditMode ? String(game.duration)       : '120',
+    teams:       isEditMode ? String(game.teams)          : '3',
+    teamSize:    isEditMode ? String(game.teamSize)       : '6',
+    price:       isEditMode ? String(game.price)          : '10',
+    currency:    isEditMode ? (game.currency    || 'GEL') : 'GEL',
+    bankAccount: isEditMode ? (game.bankAccount || '')    : '',
   })
 
   const [saving, setSaving] = useState(false)
@@ -39,35 +40,42 @@ export default function AdminModal({ onClose, user }) {
     try {
       const teams    = parseInt(form.teams)    || 3
       const teamSize = parseInt(form.teamSize) || 6
-      const duration = parseInt(form.duration) || 60
+      const duration = parseInt(form.duration) || 120
       const price    = parseInt(form.price)    || 0
 
-      // Calculate endTime from date + time + duration
       const [year, month, day] = form.date.split('-').map(Number)
       const [hour, minute]     = form.time.split(':').map(Number)
       const startDate = new Date(year, month - 1, day, hour, minute)
       const endDate   = new Date(startDate.getTime() + duration * 60 * 1000)
 
-      await addDoc(collection(db, 'games'), {
-        date:      form.date,
-        time:      form.time,
+      const gameData = {
+        date:        form.date,
+        time:        form.time,
         duration,
-        pitch:     form.pitch,
+        pitch:       form.pitch,
         teams,
         teamSize,
         price,
         currency:    form.currency,
-        status:      'open',
         bankAccount: form.bankAccount.trim(),
         endTime:     Timestamp.fromDate(endDate),
-        createdBy: user.uid,
-        createdAt: Timestamp.now(),
-      })
+      }
+
+      if (isEditMode) {
+        await updateDoc(doc(db, 'games', game.id), gameData)
+      } else {
+        await addDoc(collection(db, 'games'), {
+          ...gameData,
+          status:    'open',
+          createdBy: user.uid,
+          createdAt: Timestamp.now(),
+        })
+      }
 
       onClose()
     } catch (err) {
-      console.error('Error creating game:', err)
-      setError('Failed to create game. Please try again.')
+      console.error('Error saving game:', err)
+      setError('Failed to save game. Please try again.')
       setSaving(false)
     }
   }
@@ -87,19 +95,15 @@ export default function AdminModal({ onClose, user }) {
       <div className="modal-box admin-modal-box">
         <div className="modal-close" onClick={onClose}>✕</div>
         <div className="admin-badge">⚙ Admin Only</div>
-        <div className="modal-title">Create Reservation</div>
-        <div className="modal-sub">Set up a new game slot for players to reserve</div>
+        <div className="modal-title">{isEditMode ? 'Edit Game' : 'Create Reservation'}</div>
+        <div className="modal-sub">
+          {isEditMode ? 'Update the details for this game slot' : 'Set up a new game slot for players to reserve'}
+        </div>
 
         <div className="form-grid">
           <div className="form-group">
             <label className="form-label">Game Date</label>
-            <input
-              type="date"
-              className="form-input"
-              name="date"
-              value={form.date}
-              onChange={handleChange}
-            />
+            <input type="date" className="form-input" name="date" value={form.date} onChange={handleChange} />
             <span className="form-hint" style={{color: 'var(--accent)', fontWeight: '600'}}>{dayOfWeek}</span>
           </div>
 
@@ -159,21 +163,8 @@ export default function AdminModal({ onClose, user }) {
           <div className="form-group">
             <label className="form-label">Price per Spot</label>
             <div className="price-wrap">
-              <input
-                type="number"
-                className="form-input"
-                name="price"
-                value={form.price}
-                min="0"
-                onChange={handleChange}
-              />
-              <select
-                className="form-select"
-                name="currency"
-                value={form.currency}
-                onChange={handleChange}
-                style={{width: '80px', flexShrink: 0}}
-              >
+              <input type="number" className="form-input" name="price" value={form.price} min="0" onChange={handleChange} />
+              <select className="form-select" name="currency" value={form.currency} onChange={handleChange} style={{width: '80px', flexShrink: 0}}>
                 <option value="GEL">GEL</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -223,7 +214,7 @@ export default function AdminModal({ onClose, user }) {
           onClick={handleSubmit}
           disabled={saving}
         >
-          {saving ? 'Creating...' : '✓ Create Game Slot'}
+          {saving ? 'Saving...' : isEditMode ? '✓ Save Changes' : '✓ Create Game Slot'}
         </button>
         <button
           className="btn btn-ghost"
