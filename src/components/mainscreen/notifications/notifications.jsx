@@ -1,71 +1,115 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { collection, query, where, getDocs, updateDoc, writeBatch, doc } from 'firebase/firestore'
+import { db } from '../../../firebase'
 import './notifications.css'
 
-// TODO: load and save notification preferences from Firebase when connected
-const INITIAL_PREFS = {
-  new_game:  true,
-  cancelled: true,
-  withdraw:  false,
-  full:      true,
+const PREFS_CONFIG = [
+  { key: 'cancelled', label: 'Game cancelled',   desc: 'Alert when a game you joined gets cancelled' },
+  { key: 'new_game',  label: 'New game created',  desc: 'Alert when admin schedules a new game slot' },
+  { key: 'withdraw',  label: 'Player withdraws',  desc: 'Alert when someone leaves a game you\'re in' },
+  { key: 'full',      label: 'Game is full',       desc: 'Alert when all spots in a game are taken' },
+]
+
+const INITIAL_PREFS = { cancelled: true, new_game: true, withdraw: false, full: true }
+
+// Format Firestore timestamp to relative or absolute string
+function formatTime(ts) {
+  if (!ts) return ''
+  const date  = ts.toDate()
+  const now   = new Date()
+  const diffM = Math.floor((now - date) / 60000)
+  if (diffM < 1)   return 'Just now'
+  if (diffM < 60)  return `${diffM} minute${diffM > 1 ? 's' : ''} ago`
+  const diffH = Math.floor(diffM / 60)
+  if (diffH < 24)  return `${diffH} hour${diffH > 1 ? 's' : ''} ago`
+  const diffD = Math.floor(diffH / 24)
+  if (diffD === 1) return 'Yesterday'
+  return `${diffD} days ago`
 }
 
-// TODO: replace with real notifications fetched from Firebase
-const NOTIFICATIONS = [
-  {
-    id: 1,
-    icon: '⚽',
-    iconBg: 'rgba(200,242,90,0.1)',
-    title: 'New game created — 06:00 on 03 March',
-    desc: 'A new 6-a-side game was scheduled on Pitch A. 18 spots available.',
-    time: '2 minutes ago',
-    unread: true,
-  },
-  {
-    id: 2,
-    icon: '👥',
-    iconBg: 'rgba(74,222,128,0.1)',
-    title: '12:00 game is now full',
-    desc: 'All 18 spots on Pitch A have been reserved.',
-    time: 'Yesterday, 11:45',
-    unread: false,
-  },
-  {
-    id: 3,
-    icon: '🚫',
-    iconBg: 'rgba(251,146,60,0.1)',
-    title: '18:00 game was cancelled',
-    desc: 'The Pitch C game on 02 March has been cancelled by the admin.',
-    time: 'Yesterday, 16:20',
-    unread: false,
-  },
-  {
-    id: 4,
-    icon: '🚫',
-    iconBg: 'rgba(255,77,77,0.1)',
-    title: 'Tom L. withdrew from your game',
-    desc: '1 spot opened up in the 06:00 game — Team A now has a free slot.',
-    time: '2 days ago',
-    unread: false,
-  },
-]
+// Map notification type to icon and background
+function iconForType(type) {
+  if (type === 'game_cancelled') return { icon: '🚫', bg: 'rgba(255,77,77,0.1)' }
+  if (type === 'game_full')      return { icon: '👥', bg: 'rgba(74,222,128,0.1)' }
+  if (type === 'new_game')       return { icon: '⚽', bg: 'rgba(200,242,90,0.1)' }
+  return                                { icon: '🔔', bg: 'rgba(200,242,90,0.1)' }
+}
 
-const PREFS_CONFIG = [
-  { key: 'new_game',  label: 'New game created', desc: 'Alert when admin schedules a new game slot' },
-  { key: 'cancelled', label: 'Game cancelled',   desc: 'Alert when a game you joined gets cancelled' },
-  { key: 'withdraw',  label: 'Player withdraws', desc: 'Alert when someone leaves a game you\'re in' },
-  { key: 'full',      label: 'Game is full',      desc: 'Alert when all spots in a game are taken' },
-]
+// Build human-readable title and description from notification data
+function textForNotif(n) {
+  if (n.type === 'game_cancelled') return {
+    title: `${n.gameTime} game on ${n.gameDate} was cancelled`,
+    desc:  `The game on Pitch ${n.gamePitch} has been cancelled.`,
+  }
+  return { title: 'Notification', desc: '' }
+}
 
-export default function NotificationsScreen({ active }) {
-  const [prefs, setPrefs] = useState(INITIAL_PREFS)
+export default function NotificationsScreen({ active, user }) {
+  const [notifications, setNotifications] = useState([])
+  const [loading, setLoading]             = useState(true)
+  const [prefs, setPrefs]                 = useState(INITIAL_PREFS)
+
+  // Fetch notifications for current user, newest first
+  useEffect(() => {
+    if (!user?.uid) return
+
+    async function fetchNotifications() {
+      setLoading(true)
+      console.log('[Notifs] fetching for uid:', user.uid)
+      try {
+        const q    = query(
+          collection(db, 'notifications'),
+          where('userId', '==', user.uid)
+        )
+        const snap = await getDocs(q)
+        console.log('[Notifs] docs found:', snap.docs.length)
+        snap.docs.forEach(d => console.log('[Notifs] doc:', d.id, d.data()))
+        const docs = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
+        setNotifications(docs)
+      } catch (err) {
+        console.error('[Notifs] Error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNotifications()
+  }, [user?.uid])
+
+  // Mark a single notification as read
+  async function markRead(id) {
+    try {
+      await updateDoc(doc(db, 'notifications', id), { read: true })
+      setNotifications(prev =>
+        prev.map(n => n.id === id ? { ...n, read: true } : n)
+      )
+    } catch (err) {
+      console.error('Error marking read:', err)
+    }
+  }
+
+  // Mark all unread notifications as read in one batch
+  async function markAllRead() {
+    const unread = notifications.filter(n => !n.read)
+    if (!unread.length) return
+    try {
+      const batch = writeBatch(db)
+      unread.forEach(n => batch.update(doc(db, 'notifications', n.id), { read: true }))
+      await batch.commit()
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+    } catch (err) {
+      console.error('Error marking all read:', err)
+    }
+  }
 
   function togglePref(key) {
-    setPrefs(prev => {
-      const updated = { ...prev, [key]: !prev[key] }
-      // TODO: save updated prefs to Firebase when connected
-      return updated
-    })
+    setPrefs(prev => ({ ...prev, [key]: !prev[key] }))
+    // TODO: persist prefs to Firestore (users/{uid}/prefs) when preference system is built
   }
+
+  const unreadCount = notifications.filter(n => !n.read).length
 
   return (
     <div className={`content screen ${active ? 'active' : ''}`} id="screen-notifs">
@@ -75,21 +119,42 @@ export default function NotificationsScreen({ active }) {
           <div className="page-title">NOTIFICATIONS</div>
           <div className="page-subtitle">Your recent alerts &amp; preferences</div>
         </div>
+        {unreadCount > 0 && (
+          <button className="btn btn-ghost" onClick={markAllRead}>
+            ✓ Mark all read ({unreadCount})
+          </button>
+        )}
       </div>
 
       <div className="section-label" style={{marginBottom: '14px'}}>Recent</div>
+
       <div className="notif-screen-list">
-        {NOTIFICATIONS.map(n => (
-          <div key={n.id} className={`notif-screen-item ${n.unread ? 'unread' : ''}`}>
-            <div className="notif-icon-wrap" style={{background: n.iconBg}}>{n.icon}</div>
-            <div className="notif-body">
-              <div className="notif-title">{n.title}</div>
-              <div className="notif-desc">{n.desc}</div>
-              <div className="notif-ts">{n.time}</div>
-            </div>
-            {n.unread && <div className="notif-unread-dot"></div>}
-          </div>
-        ))}
+        {loading ? (
+          <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>Loading...</div>
+        ) : notifications.length === 0 ? (
+          <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>No notifications yet.</div>
+        ) : (
+          notifications.map(n => {
+            const { icon, bg }    = iconForType(n.type)
+            const { title, desc } = textForNotif(n)
+            return (
+              <div
+                key={n.id}
+                className={`notif-screen-item ${!n.read ? 'unread' : ''}`}
+                onClick={() => !n.read && markRead(n.id)}
+                style={!n.read ? {cursor: 'pointer'} : {}}
+              >
+                <div className="notif-icon-wrap" style={{background: bg}}>{icon}</div>
+                <div className="notif-body">
+                  <div className="notif-title">{title}</div>
+                  <div className="notif-desc">{desc}</div>
+                  <div className="notif-ts">{formatTime(n.createdAt)}</div>
+                </div>
+                {!n.read && <div className="notif-unread-dot"></div>}
+              </div>
+            )
+          })
+        )}
       </div>
 
       <div className="notif-settings-card">
