@@ -1,9 +1,9 @@
 /* ── MODALS ─────────────────────────────────────────────── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:auto}
-.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:93vw;transform:translateY(20px);transition:transform .25s;position:relative}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:93vw;max-height:90vh;overflow-y:auto;transform:translateY(20px);transition:transform .25s;position:relative}
 .modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-close{position:absolute;top:20px;right:20px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s}
+.modal-close{position:sticky;top:0;float:right;margin:-8px -8px 0 0;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s;z-index:10}
 .modal-close:hover{color:var(--text)}
 .modal-title{font-family:'Bebas Neue',sans-serif;font-size:36px;margin-bottom:6px}
 .modal-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
@@ -55,6 +55,9 @@
 /* ── RESPONSIVE ─────────────────────────────────────────── */
 @media(max-width:600px){
   .modal-title{font-size:30px}
+  .modal-box{padding:20px;max-height:92vh;border-radius:16px;width:100%}
+  .modal-overlay{align-items:flex-end}
+  .modal-overlay.open .modal-box{border-bottom-left-radius:0;border-bottom-right-radius:0}
 }
 
 
