@@ -8,7 +8,9 @@ import AdminModal from './AdminModal'
 const MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER']
 const MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31]
 const MONTH_START_DAYS = [3,6,0,3,5,1,3,6,2,4,0,2] // day of week for 1st of each month in 2026 (0=Sun)
-const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const FULL_DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 function formatDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
@@ -43,9 +45,7 @@ export default function GamesScreen({ active, user }) {
 
   const activeChipRef = useRef(null)
 
-  // Format subtitle: e.g. "Monday, 09 March"
-  const FULL_DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-  const FULL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  // Subtitle e.g. "Monday, 09 March"
   const subtitle = `${FULL_DAYS[today.getDay()]}, ${String(today.getDate()).padStart(2,'0')} ${FULL_MONTHS[today.getMonth()]}`
 
   // Fetch user role to determine admin access
@@ -111,6 +111,8 @@ export default function GamesScreen({ active, user }) {
     }
     fetchGames()
   }, [activeDay, activeMonth, user.uid, refreshKey])
+
+  // Close modals on Escape key
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === 'Escape') {
@@ -122,12 +124,12 @@ export default function GamesScreen({ active, user }) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Scroll active date chip into view whenever it changes
+  // Scroll active date chip into view when selection changes
   useEffect(() => {
     if (activeChipRef.current) {
       activeChipRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
     }
-  }, [activeDay, activeMonth, user.uid, refreshKey]) // re-fetch when date, user or refreshKey changes
+  }, [activeDay, activeMonth])
 
   // Reset active day to 1 when month changes
   function changeMonth(dir) {
