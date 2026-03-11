@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore'
 import { auth, db } from './firebase'
 import './App.css'
 import Sidebar from './components/sidebar/sidebar.jsx'
@@ -33,9 +33,10 @@ async function ensureUserDoc(firebaseUser) {
 }
 
 function App() {
-  const [user, setUser]               = useState(null)
-  const [loading, setLoading]         = useState(true)
-  const [activeScreen, setActiveScreen] = useState('games')
+  const [user, setUser]                   = useState(null)
+  const [loading, setLoading]             = useState(true)
+  const [activeScreen, setActiveScreen]   = useState('games')
+  const [notifications, setNotifications] = useState([])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -48,19 +49,54 @@ function App() {
     return () => unsubscribe()
   }, [])
 
+  // Fetch notifications once on login
+  useEffect(() => {
+    if (!user?.uid) return
+
+    async function fetchNotifications() {
+      try {
+        const q    = query(collection(db, 'notifications'), where('userId', '==', user.uid))
+        const snap = await getDocs(q)
+        const docs = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
+        setNotifications(docs)
+      } catch (err) {
+        console.error('Error fetching notifications:', err)
+      }
+    }
+
+    fetchNotifications()
+  }, [user?.uid])
+
+  // Update a notification's read state in local notifications array
+  function handleMarkRead(id) {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+  }
+
+  // Mark all notifications as read in local notifications array
+  function handleMarkAllRead() {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+  }
+
   if (loading) return null
   if (!user) return <Login />
+
+  const hasUnread = notifications.some(n => !n.read)
 
   return (
     <div className="app">
       <Sidebar
         activeScreen={activeScreen}
         onNavigate={setActiveScreen}
-        user={user} />
+        hasUnread={hasUnread} />
       <MainScreen
         activeScreen={activeScreen}
         onNavigate={setActiveScreen}
-        user={user} />
+        user={user}
+        notifications={notifications}
+        onMarkRead={handleMarkRead}
+        onMarkAllRead={handleMarkAllRead} />
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs, updateDoc, writeBatch, doc } from 'firebase/firestore'
+import { useState } from 'react'
+import { updateDoc, writeBatch, doc } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import './notifications.css'
 
@@ -44,53 +44,20 @@ function textForNotif(n) {
   return { title: 'Notification', desc: '' }
 }
 
-export default function NotificationsScreen({ active, user }) {
-  const [notifications, setNotifications] = useState([])
-  const [loading, setLoading]             = useState(true)
-  const [prefs, setPrefs]                 = useState(INITIAL_PREFS)
+export default function NotificationsScreen({ active, notifications, onMarkRead, onMarkAllRead }) {
+  const [prefs, setPrefs] = useState(INITIAL_PREFS)
 
-  // Fetch notifications for current user, newest first
-  useEffect(() => {
-    if (!user?.uid) return
-
-    async function fetchNotifications() {
-      setLoading(true)
-      console.log('[Notifs] fetching for uid:', user.uid)
-      try {
-        const q    = query(
-          collection(db, 'notifications'),
-          where('userId', '==', user.uid)
-        )
-        const snap = await getDocs(q)
-        console.log('[Notifs] docs found:', snap.docs.length)
-        snap.docs.forEach(d => console.log('[Notifs] doc:', d.id, d.data()))
-        const docs = snap.docs
-          .map(d => ({ id: d.id, ...d.data() }))
-          .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
-        setNotifications(docs)
-      } catch (err) {
-        console.error('[Notifs] Error:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchNotifications()
-  }, [user?.uid])
-
-  // Mark a single notification as read
+  // Mark a single notification as read in Firestore, then update parent state
   async function markRead(id) {
     try {
       await updateDoc(doc(db, 'notifications', id), { read: true })
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, read: true } : n)
-      )
+      onMarkRead(id)
     } catch (err) {
       console.error('Error marking read:', err)
     }
   }
 
-  // Mark all unread notifications as read in one batch
+  // Mark all unread as read in Firestore in one batch, then update parent state
   async function markAllRead() {
     const unread = notifications.filter(n => !n.read)
     if (!unread.length) return
@@ -98,7 +65,7 @@ export default function NotificationsScreen({ active, user }) {
       const batch = writeBatch(db)
       unread.forEach(n => batch.update(doc(db, 'notifications', n.id), { read: true }))
       await batch.commit()
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+      onMarkAllRead()
     } catch (err) {
       console.error('Error marking all read:', err)
     }
@@ -129,7 +96,7 @@ export default function NotificationsScreen({ active, user }) {
       <div className="section-label" style={{marginBottom: '14px'}}>Recent</div>
 
       <div className="notif-screen-list">
-        {loading ? (
+        {!notifications ? (
           <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>Loading...</div>
         ) : notifications.length === 0 ? (
           <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>No notifications yet.</div>

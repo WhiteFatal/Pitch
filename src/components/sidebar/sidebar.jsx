@@ -1,6 +1,6 @@
 import './sidebar.css'
 
-export default function Sidebar({ activeScreen, onNavigate }) {
+export default function Sidebar({ activeScreen, onNavigate, hasUnread }) {
   return (
     <aside className="sidebar">
       <div className="logo">PITCH</div>
@@ -30,7 +30,7 @@ export default function Sidebar({ activeScreen, onNavigate }) {
         onClick={() => onNavigate('notifs')}
       >
         &#128276;
-        <div className="notif-dot"></div>
+        {hasUnread && <div className="notif-dot"></div>}
       </div>
 
       <div className="sidebar-bottom">
