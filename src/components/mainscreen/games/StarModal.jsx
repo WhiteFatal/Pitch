@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs, updateDoc, doc, increment, writeBatch, Timestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { displayName } from '../../../utils'
 
@@ -51,17 +51,6 @@ export default function StarModal({ game, onClose, user }) {
         setMyVote(myVotedFor)
         setStarCounts(counts)
 
-        // First open: increment gamesPlayed for all reserved players
-        if (!game.gamesCountedAt) {
-          const allPlayerIds = resSnap.docs.map(d => d.data().userId)
-          const batch = writeBatch(db)
-          allPlayerIds.forEach(uid => {
-            batch.update(doc(db, 'users', uid), { gamesPlayed: increment(1) })
-          })
-          batch.update(doc(db, 'games', game.id), { gamesCountedAt: Timestamp.now() })
-          await batch.commit()
-        }
-
         // Fetch player names for all reservations except current user
         const otherDocs = resSnap.docs.filter(d => d.data().userId !== user.uid)
         const playerList = await Promise.all(otherDocs.map(async d => {
@@ -84,7 +73,7 @@ export default function StarModal({ game, onClose, user }) {
     }
 
     fetchData()
-  }, [game?.id, user.uid])
+  }, [game?.id, game?.gamesCountedAt, user.uid])
 
   async function handleVote(targetUserId) {
     if (!votingOpen || myVote || saving || !myReservationId) return
