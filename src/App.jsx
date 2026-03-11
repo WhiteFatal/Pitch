@@ -1,40 +1,63 @@
 import { useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from './firebase'
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { auth, db } from './firebase'
 import './App.css'
 import Sidebar from './components/sidebar/sidebar.jsx'
 import MainScreen from './components/mainscreen/mainscreen.jsx'
 import Login from './components/login/Login.jsx'
 
 
+async function ensureUserDoc(firebaseUser) {
+  const userRef  = doc(db, 'users', firebaseUser.uid)
+  const userSnap = await getDoc(userRef)
+
+  if (!userSnap.exists()) {
+    // First time this user logs in — create their document
+    const parts     = (firebaseUser.displayName || '').trim().split(' ')
+    const firstName = parts[0] || ''
+    const lastName  = parts.slice(1).join(' ') || ''
+
+    await setDoc(userRef, {
+      firstName,
+      lastName,
+      nickname:      '',
+      email:         firebaseUser.email || '',
+      photoURL:      firebaseUser.photoURL || '',
+      role:          'player',
+      gamesPlayed:   0,
+      starsReceived: 0,
+      createdAt:     serverTimestamp(),
+    })
+  }
+}
+
 function App() {
-  const [user, setUser]       = useState(null)
-  const [loading, setLoading] = useState(true) // true while Firebase checks auth state on load
+  const [user, setUser]               = useState(null)
+  const [loading, setLoading]         = useState(true)
   const [activeScreen, setActiveScreen] = useState('games')
 
   useEffect(() => {
-    // Listen for auth state changes — fires once on load, then on every sign in/out
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        await ensureUserDoc(firebaseUser)
+      }
       setUser(firebaseUser)
       setLoading(false)
     })
-    return () => unsubscribe() // cleanup listener on unmount
+    return () => unsubscribe()
   }, [])
 
-  // Show nothing while Firebase is checking if user is already logged in
   if (loading) return null
-
-  // Show login screen if not authenticated
   if (!user) return <Login />
 
-  // Show main app if authenticated
   return (
     <div className="app">
-      <Sidebar 
-        activeScreen={activeScreen} 
+      <Sidebar
+        activeScreen={activeScreen}
         onNavigate={setActiveScreen}
         user={user} />
-      <MainScreen 
+      <MainScreen
         activeScreen={activeScreen}
         onNavigate={setActiveScreen}
         user={user} />

@@ -18,10 +18,12 @@ export default function AdminModal({ onClose, user }) {
     date:     todayStr,
     time:     '21:30',
     pitch:    'A',
-    duration: '60',
+    duration:    '120',
     teams:    '3',
     teamSize: '6',
-    price:    '10',
+    price:       '10',
+    currency:    'GEL',
+    bankAccount: '',
   })
 
   const [saving, setSaving] = useState(false)
@@ -54,8 +56,10 @@ export default function AdminModal({ onClose, user }) {
         teams,
         teamSize,
         price,
-        status:    'open',
-        endTime:   Timestamp.fromDate(endDate),
+        currency:    form.currency,
+        status:      'open',
+        bankAccount: form.bankAccount.trim(),
+        endTime:     Timestamp.fromDate(endDate),
         createdBy: user.uid,
         createdAt: Timestamp.now(),
       })
@@ -122,7 +126,7 @@ export default function AdminModal({ onClose, user }) {
             <select className="form-select" name="duration" value={form.duration} onChange={handleChange}>
               <option value="60">60 minutes</option>
               <option value="90">90 minutes</option>
-              <option value="120">120 minutes</option>
+              <option value="120">120 minutes (default)</option>
             </select>
           </div>
 
@@ -140,10 +144,13 @@ export default function AdminModal({ onClose, user }) {
           <div className="form-group">
             <label className="form-label">Players per Team</label>
             <select className="form-select" name="teamSize" value={form.teamSize} onChange={handleChange}>
-              <option value="4">4 players</option>
               <option value="5">5 players</option>
               <option value="6">6 players (default)</option>
               <option value="7">7 players</option>
+              <option value="8">8 players</option>
+              <option value="9">9 players</option>
+              <option value="10">10 players</option>
+              <option value="11">11 players</option>
             </select>
           </div>
 
@@ -160,7 +167,17 @@ export default function AdminModal({ onClose, user }) {
                 min="0"
                 onChange={handleChange}
               />
-              <span className="price-currency">GEL</span>
+              <select
+                className="form-select"
+                name="currency"
+                value={form.currency}
+                onChange={handleChange}
+                style={{width: '80px', flexShrink: 0}}
+              >
+                <option value="GEL">GEL</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
             </div>
             <span className="form-hint">Per player reservation fee</span>
           </div>
@@ -172,11 +189,27 @@ export default function AdminModal({ onClose, user }) {
             </div>
             <span className="form-hint">Auto-calculated</span>
           </div>
+
+          <div className="form-divider"></div>
+
+          <div className="form-group" style={{gridColumn: '1 / -1'}}>
+            <label className="form-label">Donate to <span style={{color: 'var(--muted)', fontWeight: 400}}>— optional</span></label>
+            <input
+              type="text"
+              className="form-input"
+              name="bankAccount"
+              value={form.bankAccount}
+              onChange={handleChange}
+              placeholder="e.g. GE12BG0000000123456789"
+            />
+            <span className="form-hint">Bank account number shown to players when they join</span>
+          </div>
+
         </div>
 
         <div className="admin-summary">
           📋 <div>
-            <strong>Game Summary:</strong> {teams} teams of {teamSize} &middot; {capacity} spots &middot; {price} GEL per spot &middot; Total pool: <strong>{pool} GEL</strong>
+            <strong>Game Summary:</strong> {teams} teams of {teamSize} &middot; {capacity} spots &middot; {price} {form.currency} per spot &middot; Total pool: <strong>{pool} {form.currency}</strong>
           </div>
         </div>
 

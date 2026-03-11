@@ -158,6 +158,24 @@ body {
 .notif-item{padding:10px 12px;background:var(--surface2);border-radius:var(--rs);font-size:13px;border-left:2px solid var(--accent)}
 .notif-time{color:var(--muted);font-size:11px;margin-top:3px}
 
+/* ── PROFILE SCREEN ── */
+.profile-hero{display:flex;align-items:center;gap:24px;padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:24px}
+.profile-avatar-lg{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#4d9fff,#a855f7);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;flex-shrink:0;border:3px solid var(--border)}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;letter-spacing:.5px}
+.profile-email{color:var(--muted);font-size:13px;margin-top:4px}
+.profile-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.profile-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center}
+.profile-stat-val{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;letter-spacing:1px;color:var(--accent)}
+.profile-stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-top:6px}
+.profile-stat-sub{font-size:11px;color:var(--mid);margin-top:4px}
+.profile-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.profile-form-title{font-family:'Bebas Neue',sans-serif;font-size:22px;margin-bottom:20px;letter-spacing:.5px}
+.profile-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.profile-field:last-of-type{margin-bottom:24px}
+.profile-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.profile-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .15s}
+.profile-input:focus{border-color:rgba(200,242,90,0.5)}
+
 /* ── TOP PLAYERS SCREEN ── */
 .players-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
 .players-header{display:grid;grid-template-columns:48px 1fr 100px 80px 90px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
@@ -205,44 +223,10 @@ body {
 .toggle input:checked ~ .toggle-thumb{transform:translateX(20px)}
 
 /* MODAL BASE */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
-.modal-overlay.open{opacity:1;pointer-events:auto}
-.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:93vw;transform:translateY(20px);transition:transform .25s;position:relative}
-.modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-close{position:absolute;top:20px;right:20px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s}
-.modal-close:hover{color:var(--text)}
-.modal-title{font-family:'Bebas Neue',sans-serif;font-size:36px;margin-bottom:6px}
-.modal-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
-.modal-stats{display:flex;gap:12px;margin-bottom:24px}
-.modal-stat{flex:1;padding:12px 14px;background:var(--surface2);border-radius:var(--rs)}
-.modal-stat-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.modal-stat-val{font-weight:600;font-size:15px}
-.team-split{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px}
-.team-box{background:var(--surface2);border-radius:var(--rs);padding:12px;border:1px solid var(--border)}
-.team-box.ta{border-top:2px solid #4ade80}.team-box.tb{border-top:2px solid #fb923c}.team-box.tc{border-top:2px solid #f0f0f0}
-.team-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
-.team-label.ta{color:#4ade80}.team-label.tb{color:#fb923c}.team-label.tc{color:#f0f0f0}
-.team-player{font-size:12px;padding:4px 0;display:flex;align-items:center;gap:6px;color:var(--mid)}
 .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .dot-a{background:#4ade80}.dot-b{background:#fb923c}.dot-c{background:#f0f0f0}
 
 /* ADMIN MODAL */
-.admin-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(251,146,60,0.12);border:1px solid rgba(251,146,60,0.3);color:#fb923c;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:12px}
-.admin-modal-box{width:560px;max-height:90vh;overflow-y:auto}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
-.form-input,.form-select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .15s;outline:none;width:100%;appearance:none}
-.form-input:focus,.form-select:focus{border-color:rgba(200,242,90,0.5)}
-.form-input::placeholder{color:var(--muted)}
-.form-select option{background:#172d1a}
-.form-hint{font-size:11px;color:var(--muted);margin-top:2px}
-.price-wrap{position:relative}
-.price-wrap .form-input{padding-right:50px}
-.price-currency{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--accent);pointer-events:none}
-.form-divider{height:1px;background:var(--border);grid-column:1/-1;margin:2px 0}
-.admin-summary{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
-.admin-summary strong{color:var(--text)}
 
 /* MOBILE NAV → moved to header.css */
 @media(max-width:900px){
@@ -255,12 +239,15 @@ body {
   body{font-size:14px}
   .page-title{font-size:40px}
   .game-time{font-size:24px}
+  .profile-name{font-size:28px}
+  .profile-stat-val{font-size:44px}
+  .profile-avatar-lg{font-size:24px}
+  .profile-form-title{font-size:19px}
   .panel-card-title{font-size:19px}
   .rank-num{font-size:15px}
   .p-rank{font-size:17px}
   .p-stars{font-size:17px}
   .p-stars span{font-size:13px}
-  .modal-title{font-size:30px}
   .notif-settings-title{font-size:19px}
   .date-chip .dom{font-size:17px}
   .page-subtitle{font-size:13px}

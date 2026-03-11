@@ -232,7 +232,7 @@ export default function GamesScreen({ active, user }) {
       </div>
 
       {/* MODALS */}
-      {selectedGame && <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />}
+      {selectedGame && <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} user={user} onReservationChanged={() => setRefreshKey(k => k + 1)} />}
       {adminOpen    && <AdminModal onClose={() => { setAdminOpen(false); setRefreshKey(k => k + 1) }} user={user} />}
     </>
   )
