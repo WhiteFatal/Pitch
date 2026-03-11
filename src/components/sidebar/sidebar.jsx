@@ -33,9 +33,6 @@ export default function Sidebar({ activeScreen, onNavigate, hasUnread }) {
         {hasUnread && <div className="notif-dot"></div>}
       </div>
 
-      <div className="sidebar-bottom">
-        <div className="avatar-sm">AK</div>
-      </div>
     </aside>
   )
 }
