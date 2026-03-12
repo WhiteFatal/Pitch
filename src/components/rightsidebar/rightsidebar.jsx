@@ -33,6 +33,7 @@ export default function RightSidebar({ user, notifications = [] }) {
           lastName:      docSnap.data().lastName      || '',
           starsReceived: docSnap.data().starsReceived || 0,
           gamesPlayed:   docSnap.data().gamesPlayed   || 0,
+          photoURL:      docSnap.data().photoURL      || '',
           grad:          GRADIENTS[i % GRADIENTS.length],
         }))
 
@@ -88,7 +89,10 @@ export default function RightSidebar({ user, notifications = [] }) {
             return (
               <div key={p.id} className="rank-item">
                 <div className={`rank-num ${RANK_CLASSES[i]}`}>{i + 1}</div>
-                <div className="rank-avatar" style={{background: p.grad}}>{initials}</div>
+                {p.photoURL
+                  ? <img className="rank-avatar rank-avatar-img" src={p.photoURL} alt={p.firstName} referrerPolicy="no-referrer" />
+                  : <div className="rank-avatar" style={{background: p.grad}}>{initials}</div>
+                }
                 <div className="rank-info">
                   <div className="rank-name">{displayName(p.firstName, p.nickname, p.lastName)}</div>
                   <div className="rank-stat">
@@ -105,9 +109,12 @@ export default function RightSidebar({ user, notifications = [] }) {
           {you && youRank > 3 && (
             <div className="rank-item" style={{background: 'var(--accent-dim)', borderRadius: 'var(--rs)'}}>
               <div className="rank-num" style={{color: 'var(--accent)'}}>{youRank}</div>
-              <div className="rank-avatar" style={{background: you.grad}}>
-                {((you.firstName[0] || '') + (you.lastName[0] || '')).toUpperCase()}
-              </div>
+              {you.photoURL
+                ? <img className="rank-avatar rank-avatar-img" src={you.photoURL} alt={you.firstName} referrerPolicy="no-referrer" />
+                : <div className="rank-avatar" style={{background: you.grad}}>
+                    {((you.firstName[0] || '') + (you.lastName[0] || '')).toUpperCase()}
+                  </div>
+              }
               <div className="rank-info">
                 <div className="rank-name" style={{color: 'var(--accent)'}}>
                   {displayName(you.firstName, you.nickname, you.lastName)}

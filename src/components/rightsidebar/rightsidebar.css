@@ -20,3 +20,4 @@
 .green{ background:var(--green); }
 .red { background:var(--red); }
 
+.rank-avatar-img { object-fit: cover; border-radius: 50%; }

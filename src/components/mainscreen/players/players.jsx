@@ -33,6 +33,7 @@ export default function PlayersScreen({ active, user }) {
           lastName:      doc.data().lastName      || '',
           starsReceived: doc.data().starsReceived || 0,
           gamesPlayed:   doc.data().gamesPlayed   || 0,
+          photoURL:      doc.data().photoURL      || '',
           grad:          GRADIENTS[i % GRADIENTS.length],
         }))
 
@@ -102,7 +103,10 @@ export default function PlayersScreen({ active, user }) {
               <div key={p.id} className={`players-row ${p.id === user.uid ? 'you' : ''}`}>
                 <div className={`p-rank ${rankClass}`}>{rank}</div>
                 <div className="p-player">
-                  <div className="p-avatar" style={{background: p.grad}}>{initials}</div>
+                  {p.photoURL
+                    ? <img className="p-avatar p-avatar-img" src={p.photoURL} alt={p.firstName} referrerPolicy="no-referrer" />
+                    : <div className="p-avatar" style={{background: p.grad}}>{initials}</div>
+                  }
                   <div className="p-name">
                     {displayName(p.firstName, p.nickname, p.lastName)}
                   </div>
