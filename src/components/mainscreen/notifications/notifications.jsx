@@ -11,21 +11,34 @@ const PREFS_CONFIG = [
   { key: 'full',      label: 'Game is full',       desc: 'Alert when all spots in a game are taken' },
 ]
 
-const INITIAL_PREFS = { cancelled: true, new_game: true, withdraw: false, full: true }
+const INITIAL_PREFS = { cancelled: true, new_game: true, withdraw: false, full: false }
 
 // Map notification type to icon and background
 function iconForType(type) {
-  if (type === 'game_cancelled') return { icon: '🚫', bg: 'rgba(255,77,77,0.1)' }
-  if (type === 'game_full')      return { icon: '👥', bg: 'rgba(74,222,128,0.1)' }
-  if (type === 'new_game')       return { icon: '⚽', bg: 'rgba(200,242,90,0.1)' }
-  return                                { icon: '🔔', bg: 'rgba(200,242,90,0.1)' }
+  if (type === 'game_cancelled')  return { icon: '🚫', bg: 'rgba(255,77,77,0.1)' }
+  if (type === 'game_full')       return { icon: '👥', bg: 'rgba(74,222,128,0.1)' }
+  if (type === 'new_game')        return { icon: '⚽', bg: 'rgba(200,242,90,0.1)' }
+  if (type === 'player_withdrew') return { icon: '↩',  bg: 'rgba(251,146,60,0.1)' }
+  return                                 { icon: '🔔', bg: 'rgba(200,242,90,0.1)' }
 }
 
 // Build human-readable title and description from notification data
 function textForNotif(n) {
   if (n.type === 'game_cancelled') return {
     title: `${n.gameTime} game on ${n.gameDate} was cancelled`,
-    desc:  `The game on Pitch ${n.gamePitch} has been cancelled.`,
+    desc:  `The game on ${n.gameDate} at ${n.gameTime} has been cancelled.`,
+  }
+  if (n.type === 'new_game') return {
+    title: `New game on ${n.gameDate} at ${n.gameTime}`,
+    desc:  `A new game has been scheduled on ${n.gameDate} at ${n.gameTime}. Reserve your spot!`,
+  }
+  if (n.type === 'player_withdrew') return {
+    title: `A player left the ${n.gameTime} game on ${n.gameDate}`,
+    desc:  `Player withdrew from the game on ${n.gameDate} at ${n.gameTime}. A spot has opened up!`,
+  }
+  if (n.type === 'game_full') return {
+    title: `${n.gameTime} game on ${n.gameDate} is now full`,
+    desc:  `Game of ${n.gameDate} at ${n.gameTime} is full, no more empty spots!`,
   }
   return { title: 'Notification', desc: '' }
 }

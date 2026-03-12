@@ -119,8 +119,10 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
     try {
       await deleteDoc(doc(db, 'reservations', myReservationId))
 
-      // Notify all remaining players in the game that someone withdrew
-      await notifyReservedPlayers(game, user.uid, 'player_withdrew')
+      // Only notify if game was full before this player left (spot just opened up)
+      if (spotsUsed >= spotsTotal) {
+        await notifyReservedPlayers(game, user.uid, 'player_withdrew')
+      }
 
       refresh()
     } catch (err) {
