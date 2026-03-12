@@ -150,3 +150,49 @@
     font-size: 48px;
   }
 }
+
+/* ── PWA INSTALL ─────────────────────────────────────────── */
+.btn-install {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  margin-top: 12px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid rgba(200,242,90,0.35);
+  border-radius: var(--rs);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-install:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+.login-ios-banner {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(200,242,90,0.25);
+  border-radius: var(--rs);
+  font-size: 13px;
+  color: var(--text);
+}
+.login-ios-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}

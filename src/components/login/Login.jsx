@@ -3,7 +3,7 @@ import { signInWithPopup } from 'firebase/auth'
 import { auth, provider } from '../../firebase'
 import './login.css'
 
-export default function Login() {
+export default function Login({ installPrompt, showIOSBanner, onAndroidInstall, onDismissIOS }) {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState(null)
 
@@ -44,6 +44,21 @@ export default function Login() {
         </button>
 
         {error && <div className="login-error">{error}</div>}
+
+        {/* Android install button */}
+        {installPrompt && (
+          <button className="btn-install" onClick={onAndroidInstall}>
+            📲 Install PITCH App
+          </button>
+        )}
+
+        {/* iOS install instructions */}
+        {showIOSBanner && (
+          <div className="login-ios-banner">
+            <span>📲 Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install</span>
+            <button className="login-ios-close" onClick={onDismissIOS}>✕</button>
+          </div>
+        )}
 
         <div className="login-footer">
           By signing in you agree to play fair,<br />
