@@ -37,6 +37,32 @@ function App() {
   const [loading, setLoading]             = useState(true)
   const [activeScreen, setActiveScreen]   = useState('games')
   const [notifications, setNotifications] = useState([])
+  const [installPrompt, setInstallPrompt] = useState(null)  // Android deferred prompt
+  const [showIOSBanner, setShowIOSBanner] = useState(false)  // iOS instruction banner
+
+  // Capture Android install prompt
+  useEffect(() => {
+    function handleBeforeInstallPrompt(e) {
+      e.preventDefault()
+      setInstallPrompt(e)
+    }
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+  }, [])
+
+  // Detect iOS Safari and not already installed
+  useEffect(() => {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    const isInStandaloneMode = window.navigator.standalone === true
+    if (isIOS && !isInStandaloneMode) setShowIOSBanner(true)
+  }, [])
+
+  async function handleAndroidInstall() {
+    if (!installPrompt) return
+    installPrompt.prompt()
+    const { outcome } = await installPrompt.userChoice
+    if (outcome === 'accepted') setInstallPrompt(null)
+  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -98,6 +124,23 @@ function App() {
         notifications={notifications}
         onMarkRead={handleMarkRead}
         onMarkAllRead={handleMarkAllRead} />
+
+      {/* Android install prompt */}
+      {installPrompt && (
+        <div className="install-banner">
+          <span>📲 Install PITCH as an app</span>
+          <button className="install-banner-btn" onClick={handleAndroidInstall}>Install</button>
+          <button className="install-banner-close" onClick={() => setInstallPrompt(null)}>✕</button>
+        </div>
+      )}
+
+      {/* iOS install instructions */}
+      {showIOSBanner && (
+        <div className="install-banner">
+          <span>📲 To install: tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
+          <button className="install-banner-close" onClick={() => setShowIOSBanner(false)}>✕</button>
+        </div>
+      )}
     </div>
   )
 }
