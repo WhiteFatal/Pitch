@@ -37,8 +37,12 @@ function App() {
   const [loading, setLoading]             = useState(true)
   const [activeScreen, setActiveScreen]   = useState('games')
   const [notifications, setNotifications] = useState([])
-  const [installPrompt, setInstallPrompt] = useState(null)  // Android deferred prompt
-  const [showIOSBanner, setShowIOSBanner] = useState(false)  // iOS instruction banner
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [showIOSBanner, setShowIOSBanner] = useState(() => {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    const isStandalone = window.navigator.standalone === true
+    return isIOS && !isStandalone
+  })
 
   // Capture Android install prompt
   useEffect(() => {
@@ -48,13 +52,6 @@ function App() {
     }
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-  }, [])
-
-  // Detect iOS Safari and not already installed
-  useEffect(() => {
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
-    const isInStandaloneMode = window.navigator.standalone === true
-    if (isIOS && !isInStandaloneMode) setShowIOSBanner(true)
   }, [])
 
   async function handleAndroidInstall() {
@@ -106,9 +103,33 @@ function App() {
   }
 
   if (loading) return null
-  if (!user) return <Login />
 
   const hasUnread = notifications.some(n => !n.read)
+
+  const installBanners = (
+    <>
+      {installPrompt && (
+        <div className="install-banner">
+          <span>📲 Install PITCH as an app</span>
+          <button className="install-banner-btn" onClick={handleAndroidInstall}>Install</button>
+          <button className="install-banner-close" onClick={() => setInstallPrompt(null)}>✕</button>
+        </div>
+      )}
+      {showIOSBanner && (
+        <div className="install-banner">
+          <span>📲 Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install</span>
+          <button className="install-banner-close" onClick={() => setShowIOSBanner(false)}>✕</button>
+        </div>
+      )}
+    </>
+  )
+
+  if (!user) return (
+    <>
+      <Login />
+      {installBanners}
+    </>
+  )
 
   return (
     <div className="app">
@@ -124,23 +145,6 @@ function App() {
         notifications={notifications}
         onMarkRead={handleMarkRead}
         onMarkAllRead={handleMarkAllRead} />
-
-      {/* Android install prompt */}
-      {installPrompt && (
-        <div className="install-banner">
-          <span>📲 Install PITCH as an app</span>
-          <button className="install-banner-btn" onClick={handleAndroidInstall}>Install</button>
-          <button className="install-banner-close" onClick={() => setInstallPrompt(null)}>✕</button>
-        </div>
-      )}
-
-      {/* iOS install instructions */}
-      {showIOSBanner && (
-        <div className="install-banner">
-          <span>📲 To install: tap <strong>Share</strong> → <strong>Add to Home Screen</strong></span>
-          <button className="install-banner-close" onClick={() => setShowIOSBanner(false)}>✕</button>
-        </div>
-      )}
     </div>
   )
 }
