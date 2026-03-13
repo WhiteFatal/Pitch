@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore'
+import { collection, query, where, getDocs, updateDoc, doc, increment, writeBatch, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { displayName } from '../../../utils'
 
@@ -46,6 +46,16 @@ export default function StarModal({ game, onClose, user }) {
             counts[data.starGivenTo] = (counts[data.starGivenTo] || 0) + 1
           }
         })
+
+        // Increment gamesPlayed for all reserved players on first open
+        if (!game.gamesCountedAt) {
+          const batch = writeBatch(db)
+          resSnap.docs.forEach(d => {
+            batch.update(doc(db, 'users', d.data().userId), { gamesPlayed: increment(1) })
+          })
+          batch.update(doc(db, 'games', game.id), { gamesCountedAt: serverTimestamp() })
+          await batch.commit()
+        }
 
         setMyReservationId(myResId)
         setMyVote(myVotedFor)

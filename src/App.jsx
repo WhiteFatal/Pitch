@@ -40,7 +40,9 @@ function App() {
   const [installPrompt, setInstallPrompt] = useState(null)
   const [showIOSBanner, setShowIOSBanner] = useState(() => {
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
-    const isStandalone = window.navigator.standalone === true
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) // iPad on iOS 13+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true
     return isIOS && !isStandalone
   })
 
@@ -106,13 +108,29 @@ function App() {
 
   const hasUnread = notifications.some(n => !n.read)
 
+  const installBanners = (
+    <>
+      {installPrompt && (
+        <div className="install-banner">
+          <span>📲 Install PITCH as an app</span>
+          <button className="install-banner-btn" onClick={handleAndroidInstall}>Install</button>
+          <button className="install-banner-close" onClick={() => setInstallPrompt(null)}>✕</button>
+        </div>
+      )}
+      {showIOSBanner && (
+        <div className="install-banner">
+          <span>📲 Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> to install</span>
+          <button className="install-banner-close" onClick={() => setShowIOSBanner(false)}>✕</button>
+        </div>
+      )}
+    </>
+  )
+
   if (!user) return (
-    <Login
-      installPrompt={installPrompt}
-      showIOSBanner={showIOSBanner}
-      onAndroidInstall={handleAndroidInstall}
-      onDismissIOS={() => setShowIOSBanner(false)}
-    />
+    <>
+      <Login />
+      {installBanners}
+    </>
   )
 
   return (
