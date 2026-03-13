@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs, updateDoc, doc, increment, writeBatch, serverTimestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, getDoc, updateDoc, doc, increment, writeBatch, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { displayName } from '../../../utils'
 
@@ -47,14 +47,19 @@ export default function StarModal({ game, onClose, user }) {
           }
         })
 
-        // Increment gamesPlayed for all reserved players on first open
-        if (!game.gamesCountedAt) {
-          const batch = writeBatch(db)
-          resSnap.docs.forEach(d => {
-            batch.update(doc(db, 'users', d.data().userId), { gamesPlayed: increment(1) })
-          })
-          batch.update(doc(db, 'games', game.id), { gamesCountedAt: serverTimestamp() })
-          await batch.commit()
+        // Increment gamesPlayed — read fresh from Firestore to avoid race condition
+        try {
+          const freshGame = await getDoc(doc(db, 'games', game.id))
+          if (!freshGame.data()?.gamesCountedAt) {
+            const batch = writeBatch(db)
+            resSnap.docs.forEach(d => {
+              batch.update(doc(db, 'users', d.data().userId), { gamesPlayed: increment(1) })
+            })
+            batch.update(doc(db, 'games', game.id), { gamesCountedAt: serverTimestamp() })
+            await batch.commit()
+          }
+        } catch (batchErr) {
+          console.error('Error incrementing gamesPlayed:', batchErr)
         }
 
         setMyReservationId(myResId)
