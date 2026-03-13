@@ -19,7 +19,7 @@ export default function AdminModal({ onClose, user, game }) {
   const [form, setForm] = useState({
     date:        isEditMode ? game.date                   : todayStr,
     time:        isEditMode ? game.time                   : '21:30',
-    pitch:       isEditMode ? game.pitch                  : 'A',
+    pitch:       isEditMode ? game.pitch                  : '35 School on Kavtaradze',
     duration:    isEditMode ? String(game.duration)       : '120',
     teams:       isEditMode ? String(game.teams)          : '3',
     teamSize:    isEditMode ? String(game.teamSize)       : '6',
@@ -122,9 +122,11 @@ export default function AdminModal({ onClose, user, game }) {
           <div className="form-group">
             <label className="form-label">Pitch</label>
             <select className="form-select" name="pitch" value={form.pitch} onChange={handleChange}>
-              <option value="A">Pitch A</option>
-              <option value="B">Pitch B</option>
-              <option value="C">Pitch C</option>
+              <option value="35 School on Kavtaradze">35 School on Kavtaradze</option>
+              <option value="Lisi Stadium">Lisi Stadium</option>
+              <option value="161 School on Iosebidze">161 School on Iosebidze</option>
+              <option value="Arena 1">Arena 1</option>
+              <option value="Arena 2">Arena 2</option>
             </select>
           </div>
 
