@@ -78,6 +78,7 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
   const spotsUsed   = Object.values(teams).reduce((sum, t) => sum + t.length, 0)
   const isFull      = spotsUsed >= spotsTotal
   const isCancelled = game.status === 'cancelled'
+  const isStarted   = new Date() >= new Date(`${game.date}T${game.time}:00`)
 
   function refresh() {
     setRefreshKey(k => k + 1)
@@ -227,7 +228,7 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
           {error && <div className="modal-error">{error}</div>}
 
           {/* CREATOR BUTTONS — edit and cancel */}
-          {isCreator && !isCancelled && (
+          {isCreator && !isCancelled && !isStarted && (
             <div className="modal-btn-row">
               <button className="btn btn-admin" onClick={() => setEditOpen(true)}>
                 ✎ Edit Game
@@ -240,7 +241,9 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
 
           {/* RESERVE/LEAVE — available to everyone including creator */}
           {!isCancelled && (
-            joined ? (
+            isStarted ? (
+              <div className="modal-cancelled" style={{color: 'var(--mid)'}}>⏱ Game in progress — registration closed</div>
+            ) : joined ? (
               <button className="btn btn-ghost btn-full" onClick={handleLeave} disabled={saving}>
                 {saving ? 'Leaving...' : '✕ Leave Game'}
               </button>

@@ -8,7 +8,7 @@ export default function Sidebar({ activeScreen, onNavigate, hasUnread }) {
       <div
         className={`nav-icon ${activeScreen === 'games' ? 'active' : ''}`}
         onClick={() => onNavigate('games')}
-      >&#9917;</div>
+      ><img src="/ball.svg" alt="Games" /></div>
 
       <div
         className={`nav-icon gold-icon ${activeScreen === 'profile' ? 'active' : ''}`}
