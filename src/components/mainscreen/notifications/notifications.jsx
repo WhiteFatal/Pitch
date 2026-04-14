@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { updateDoc, writeBatch, doc } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { formatTime } from '../../../utils'
@@ -45,6 +45,7 @@ function textForNotif(n) {
 
 export default function NotificationsScreen({ active, notifications, onMarkRead, onMarkAllRead }) {
   const [prefs, setPrefs] = useState(INITIAL_PREFS)
+  const [threshold] = useState(() => Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   // Mark a single notification as read in Firestore, then update parent state
   async function markRead(id) {
@@ -77,6 +78,10 @@ export default function NotificationsScreen({ active, notifications, onMarkRead,
 
   const unreadCount = notifications.filter(n => !n.read).length
 
+  const recentNotifs = useMemo(() => {
+  return notifications.filter(n => (n.createdAt?.seconds * 1000 || 0) >= threshold);
+}, [notifications, threshold]);
+
   return (
     <div className={`content screen ${active ? 'active' : ''}`} id="screen-notifs">
 
@@ -97,10 +102,10 @@ export default function NotificationsScreen({ active, notifications, onMarkRead,
       <div className="notif-screen-list">
         {!notifications ? (
           <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>Loading...</div>
-        ) : notifications.length === 0 ? (
-          <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>No notifications yet.</div>
+        ) : recentNotifs.length === 0 ? (
+          <div style={{color: 'var(--muted)', fontSize: '13px', padding: '20px 0'}}>No notifications in the last 7 days.</div>
         ) : (
-          notifications.map(n => {
+          recentNotifs.map(n => {
             const { icon, bg }    = iconForType(n.type)
             const { title, desc } = textForNotif(n)
             return (
