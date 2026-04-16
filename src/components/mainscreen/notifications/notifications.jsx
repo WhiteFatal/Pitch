@@ -97,7 +97,7 @@ export default function NotificationsScreen({ active, notifications, onMarkRead,
         )}
       </div>
 
-      <div className="section-label" style={{marginBottom: '14px'}}>Recent</div>
+      <div className="section-label" style={{marginBottom: '14px'}}>Recent, last 7 days</div>
 
       <div className="notif-screen-list">
         {!notifications ? (
