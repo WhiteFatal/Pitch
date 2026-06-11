@@ -78,7 +78,11 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
   const spotsUsed   = Object.values(teams).reduce((sum, t) => sum + t.length, 0)
   const isFull      = spotsUsed >= spotsTotal
   const isCancelled = game.status === 'cancelled'
-  const isStarted   = new Date() >= new Date(`${game.date}T${game.time}:00`)
+
+  // allow joining until 30 min after start time to account for late arrivals 
+  // and no-shows, but show "in progress" status after start time
+  const isStarted   = Date.now() >= new Date(`${game.date}T${game.time}:00`).getTime() + 1800000; 
+
 
   function refresh() {
     setRefreshKey(k => k + 1)
