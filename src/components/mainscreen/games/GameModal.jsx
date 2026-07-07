@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, Timestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc, setDoc, Timestamp } from 'firebase/firestore'
 import { db } from '../../../firebase'
 import { displayName } from '../../../utils'
 import { notifyReservedPlayers, notifyGameFull } from './notifHelpers'
@@ -78,11 +78,7 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
   const spotsUsed   = Object.values(teams).reduce((sum, t) => sum + t.length, 0)
   const isFull      = spotsUsed >= spotsTotal
   const isCancelled = game.status === 'cancelled'
-
-  // allow joining until 30 min after start time to account for late arrivals 
-  // and no-shows, but show "in progress" status after start time
-  const isStarted   = Date.now() >= new Date(`${game.date}T${game.time}:00`).getTime() + 1800000; 
-
+  const isStarted   = new Date() >= new Date(`${game.date}T${game.time}:00`)
 
   function refresh() {
     setRefreshKey(k => k + 1)
@@ -100,7 +96,7 @@ export default function GameModal({ game, onClose, user, onReservationChanged })
     setError(null)
     setSaving(true)
     try {
-      await addDoc(collection(db, 'reservations'), {
+      await setDoc(doc(db, 'reservations', `${game.id}_${user.uid}`), {
         userId: user.uid, gameId: game.id, team: assignTeam(), joinedAt: Timestamp.now(),
       })
 
